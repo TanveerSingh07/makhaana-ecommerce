@@ -1,47 +1,31 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
-import { HeartIcon, TruckIcon, SparklesIcon, ShieldCheckIcon } from '@heroicons/react/24/outline'
-import { prisma } from '../lib/prisma'
-import { formatPrice } from '../lib/utils'
-import Image from 'next/image'
+import { prisma } from '@/lib/prisma'
+import { formatPrice } from '@/lib/utils'
 
 async function getFeaturedProducts() {
   const products = await prisma.product.findMany({
     where: { isActive: true },
     take: 4,
     include: {
-      images: {
-        orderBy: { sortOrder: 'asc' },
-        take: 1
-      },
+      images: { orderBy: { sortOrder: 'asc' }, take: 1 },
       variants: {
         where: { isActive: true },
-        include: {
-          flavour: true,
-          packetSize: true
-        }
-      }
-    }
+        include: { flavour: true, packetSize: true },
+      },
+    },
   })
 
-  return products.map(product => {
-    const prices = product.variants.map(v => parseFloat(v.price.toString()))
-    const minPrice = prices.length > 0 ? Math.min(...prices) : 0
-    
-    const flavours = Array.from(new Set(
-      product.variants.map(v => v.flavour.name)
-    ))
-    
-    const sizes = Array.from(new Set(
-      product.variants.map(v => v.packetSize.label)
-    ))
+  return products.map((product) => {
+    const prices = product.variants.map((v) =>
+      parseFloat(v.price.toString())
+    )
 
     return {
       ...product,
-      minPrice,
-      flavours,
-      sizes
+      minPrice: prices.length ? Math.min(...prices) : 0,
     }
   })
 }
@@ -49,76 +33,62 @@ async function getFeaturedProducts() {
 export default async function Home() {
   const featuredProducts = await getFeaturedProducts()
 
-  const features = [
-    {
-      icon: HeartIcon,
-      title: 'Healthy Snacking',
-      description: 'Low-calorie, high-protein superfood'
-    },
-    {
-      icon: SparklesIcon,
-      title: 'Multiple Flavours',
-      description: 'Choose from a variety of delicious flavours'
-    },
-    {
-      icon: ShieldCheckIcon,
-      title: 'Quality Assured',
-      description: 'Fresh packaging with strict quality control'
-    },
-    {
-      icon: TruckIcon,
-      title: 'Fast Delivery',
-      description: 'Quick and reliable delivery across India'
-    }
-  ]
-
   return (
     <>
       <Header />
-      <main>
-        {/* Hero Section */}
-        <section className="relative bg-gradient-to-r from-emerald-600 to-emerald-700 text-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
-            <div className="max-w-3xl">
-              <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fadeIn">
-                Premium Makhaana for Healthy Living
-              </h1>
-              <p className="text-xl md:text-2xl mb-8 text-emerald-100 animate-fadeIn" style={{animationDelay: '0.1s'}}>
-                Delicious, nutritious, and perfect for guilt-free snacking. Available in multiple flavours and sizes.
-              </p>
-              <div className="flex flex-wrap gap-4 animate-fadeIn" style={{animationDelay: '0.2s'}}>
-                <Link
-                  href="/shop"
-                  className="bg-white text-emerald-700 px-8 py-3 rounded-lg font-semibold hover:bg-emerald-50 transition-colors"
-                >
-                  Shop Now
-                </Link>
-                <Link
-                  href="/about"
-                  className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-emerald-700 transition-colors"
-                >
-                  Learn More
-                </Link>
-              </div>
-            </div>
-          </div>
-          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
-        </section>
 
-        {/* Features Section */}
-        <section className="py-16 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {features.map((feature, index) => (
-                <div key={index} className="text-center">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mb-4">
-                    <feature.icon className="w-8 h-8" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {feature.title}
-                  </h3>
-                  <p className="text-gray-600">
-                    {feature.description}
+      <main className="pt-10">
+        {/* ================= HERO ================= */}
+        <section className="bg-[#f9fbfa]">
+          <div className="max-w-7xl mx-auto px-6 py-28 text-center">
+            {/* Badge */}
+            <p className="text-sm font-medium text-primary mb-4">
+              Premium Quality Guaranteed
+            </p>
+
+            {/* Heading */}
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">
+              Healthy Snacking,
+              <br />
+              <span className="text-primary">Deliciously Simple</span>
+            </h1>
+
+            {/* Subtext */}
+            <p className="mt-6 max-w-2xl mx-auto text-lg text-gray-600">
+              Premium makhaana in multiple flavours and sizes. Low-calorie,
+              high-protein superfood delivered fresh to your door.
+            </p>
+
+            {/* CTA */}
+            <div className="mt-10 flex flex-wrap justify-center gap-4">
+              <Link
+                href="/shop"
+                className="px-8 py-3 rounded-lg bg-primary text-white font-medium hover:opacity-90 transition"
+              >
+                Shop Now
+              </Link>
+
+              <Link
+                href="/about"
+                className="px-8 py-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
+              >
+                Learn More
+              </Link>
+            </div>
+
+            {/* Stats */}
+            <div className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-10 max-w-4xl mx-auto">
+              {[
+                { value: '10K+', label: 'Happy Customers' },
+                { value: '50K+', label: 'Products Sold' },
+                { value: '4.8 ⭐', label: 'Rating' },
+              ].map((stat) => (
+                <div key={stat.label}>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {stat.value}
+                  </p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    {stat.label}
                   </p>
                 </div>
               ))}
@@ -126,98 +96,100 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Featured Products */}
-        <section className="py-16 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Featured Products
-              </h2>
-              <p className="text-lg text-gray-600">
-                Explore our premium selection of makhaana
-              </p>
-            </div>
+        {/* ================= FEATURES ================= */}
+        <section className="py-24">
+          <div className="max-w-7xl mx-auto px-6">
+            <h2 className="text-3xl font-bold text-center mb-14">
+              Why Choose Makhaana?
+            </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[
+                {
+                  icon: '❤️',
+                  title: 'Healthy Snacking',
+                  desc: 'Low-calorie, high-protein superfood',
+                },
+                {
+                  icon: '✨',
+                  title: 'Multiple Flavours',
+                  desc: 'Wide range of delicious flavours',
+                },
+                {
+                  icon: '🛡️',
+                  title: 'Quality Assured',
+                  desc: 'Fresh packaging & strict QC',
+                },
+                {
+                  icon: '🚚',
+                  title: 'Fast Delivery',
+                  desc: 'Reliable delivery across India',
+                },
+              ].map((f) => (
+                <div
+                  key={f.title}
+                  className="bg-white rounded-xl p-8 shadow-sm hover-lift text-center"
+                >
+                  <div className="text-4xl mb-5">{f.icon}</div>
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    {f.title}
+                  </h3>
+                  <p className="text-sm text-gray-600">{f.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ================= FEATURED PRODUCTS ================= */}
+        <section className="py-24 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-6">
+            <h2 className="text-3xl font-bold text-center mb-14">
+              Featured Products
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {featuredProducts.map((product) => (
                 <Link
                   key={product.id}
                   href={`/product/${product.slug}`}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow group"
+                  className="product-card hover-lift"
                 >
-                  <div className="aspect-square bg-gray-100 relative overflow-hidden">
-                    {product.images[0] ? (
+                  <div className="relative h-56">
+                    {product.images[0] && (
                       <Image
                         src={product.images[0].url}
-                        alt={product.images[0].altText || product.name}
+                        alt={product.name}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="object-cover"
                       />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        No Image
-                      </div>
                     )}
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 mb-2">{product.name}</h3>
-                    <p className="text-emerald-600 font-bold mb-2">
+
+                  <div className="p-5">
+                    <h3 className="font-semibold text-gray-900">
+                      {product.name}
+                    </h3>
+                    <p className="mt-2 text-primary font-bold">
                       From {formatPrice(product.minPrice)}
                     </p>
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      {product.flavours.slice(0, 3).map((flavour, idx) => (
-                        <span key={idx} className="text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded">
-                          {flavour}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {product.sizes.join(' | ')}
-                    </div>
                   </div>
                 </Link>
               ))}
             </div>
 
-            <div className="text-center mt-12">
+            <div className="text-center mt-14">
               <Link
                 href="/shop"
-                className="inline-block bg-emerald-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-emerald-700 transition-colors"
+                className="inline-block px-8 py-3 rounded-lg bg-primary text-white font-medium hover:opacity-90 transition"
               >
                 View All Products
               </Link>
             </div>
           </div>
         </section>
-
-        {/* Trust Section */}
-        <section className="py-16 bg-white">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">
-              Why Choose Makhaana?
-            </h2>
-            <p className="text-lg text-gray-600 mb-8">
-              We source the finest quality fox nuts, process them with care, and package them fresh to preserve their natural goodness. Every batch is tested for quality and freshness before it reaches you.
-            </p>
-            <div className="flex justify-center items-center space-x-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-emerald-600">100%</div>
-                <div className="text-sm text-gray-600">Natural</div>
-              </div>
-              <div className="h-12 w-px bg-gray-300"></div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-emerald-600">Fresh</div>
-                <div className="text-sm text-gray-600">Packaging</div>
-              </div>
-              <div className="h-12 w-px bg-gray-300"></div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-emerald-600">5⭐</div>
-                <div className="text-sm text-gray-600">Rated</div>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
+
       <Footer />
     </>
   )
