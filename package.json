@@ -8,6 +8,9 @@
     "start": "next start",
     "lint": "eslint"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@prisma/client": "^6.19.2",
@@ -23,15 +26,18 @@
     "zustand": "^5.0.10"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.19.30",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.23",
+    "daisyui": "^4.12.24",
     "eslint": "^9",
     "eslint-config-next": "16.1.4",
+    "postcss": "^8.5.6",
     "prisma": "^6.19.2",
-    "tailwindcss": "^4",
+    "tailwindcss": "^3.4.19",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

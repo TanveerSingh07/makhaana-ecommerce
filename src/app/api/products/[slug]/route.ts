@@ -1,58 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { slug: string } }
+) {
   try {
-    const products = await prisma.product.findMany({
-      where: { isActive: true },
+    const product = await prisma.product.findFirst({
+      where: {
+        slug: params.slug,
+        isActive: true,
+      },
       include: {
         images: {
-          orderBy: { sortOrder: 'asc' }
+          orderBy: { sortOrder: 'asc' },
         },
         variants: {
           where: { isActive: true },
           include: {
             flavour: true,
-            packetSize: true
-          }
-        }
-      }
+            packetSize: true,
+          },
+        },
+      },
     })
 
-    // Transform to include min price and available options
-    const productsWithMeta = products.map(product => {
-      const prices = product.variants.map(v => parseFloat(v.price.toString()))
-      const minPrice = prices.length > 0 ? Math.min(...prices) : 0
-      
-      const flavours = Array.from(new Set(
-        product.variants.map(v => JSON.stringify({
-          id: v.flavour.id,
-          name: v.flavour.name,
-          slug: v.flavour.slug
-        }))
-      )).map(f => JSON.parse(f))
-      
-      const sizes = Array.from(new Set(
-        product.variants.map(v => JSON.stringify({
-          id: v.packetSize.id,
-          label: v.packetSize.label,
-          weightGrams: v.packetSize.weightGrams
-        }))
-      )).map(s => JSON.parse(s))
+    if (!product) {
+      return NextResponse.json(
+        { error: 'Product not found' },
+        { status: 404 }
+      )
+    }
 
-      return {
-        ...product,
-        minPrice,
-        availableFlavours: flavours,
-        availableSizes: sizes
-      }
-    })
-
-    return NextResponse.json(productsWithMeta)
+    return NextResponse.json(product)
   } catch (error) {
-    console.error('Error fetching products:', error)
+    console.error('Error fetching product by slug:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch products' },
+      { error: 'Failed to fetch product' },
       { status: 500 }
     )
   }

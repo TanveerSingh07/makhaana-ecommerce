@@ -1,31 +1,39 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { ShoppingCartIcon } from '@heroicons/react/24/outline'
-import { useCartStore } from '@/store/cartStore'
-import { useEffect, useState } from 'react'
+import Link from "next/link";
+import { ShoppingCartIcon } from "@heroicons/react/24/outline";
+import { useCartStore } from "@/store/cartStore";
+import { useEffect, useState } from "react";
 
 export default function Header() {
-  const [scrolled, setScrolled] = useState(false)
-  const [open, setOpen] = useState(false)
-  const itemCount = useCartStore((state) => state.getItemCount())
+  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
+  const itemCount = useCartStore((state) =>
+    state.items.reduce((sum, item) => sum + item.quantity, 0),
+  );
+
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const nav = [
-    { name: 'Shop', href: '/shop' },
-    { name: 'About', href: '/about' },
-    { name: 'Contact', href: '/contact' },
-  ]
+    { name: "Shop", href: "/shop" },
+    { name: "About", href: "/about" },
+    { name: "Contact", href: "/contact" },
+  ];
 
   return (
     <header
       className={`fixed top-0 inset-x-0 z-50 transition-all ${
-        scrolled ? 'bg-white shadow-md' : 'bg-white/80 backdrop-blur'
+        scrolled ? "bg-white shadow-md" : "bg-white/80 backdrop-blur"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4">
@@ -53,7 +61,7 @@ export default function Header() {
             ))}
             <Link href="/cart" className="relative">
               <ShoppingCartIcon className="w-6 h-6 text-gray-700" />
-              {itemCount > 0 && (
+              {mounted && itemCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-primary text-white text-xs px-1.5 py-0.5 rounded-full">
                   {itemCount}
                 </span>
@@ -89,5 +97,5 @@ export default function Header() {
         )}
       </div>
     </header>
-  )
+  );
 }
