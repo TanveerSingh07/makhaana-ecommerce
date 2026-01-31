@@ -1,35 +1,34 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
-import Header from './../components/layout/Header'
-import Footer from './../components/layout/Footer'
-import Link from 'next/link'
-import { CheckCircleIcon } from '@heroicons/react/24/solid'
+import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import Header from "./../components/layout/Header";
+import Footer from "./../components/layout/Footer";
+import Link from "next/link";
+import { CheckCircleIcon } from "@heroicons/react/24/solid";
 
 export default function OrderConfirmationPage() {
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const orderNumber = searchParams.get('orderNumber')
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const orderNumber = searchParams.get("orderNumber");
 
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
+    setMounted(true);
     if (!orderNumber) {
-      router.push('/')
+      router.push("/");
     }
-  }, [orderNumber, router])
+  }, [orderNumber, router]);
 
-  if (!mounted) return null
+  if (!mounted) return null;
 
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-gray-50 pt-10 px-4 flex items-center justify-center">
+      <main className="min-h-screen bg-gray-50 pt-16 px-4 flex items-center justify-center">
         <div className="max-w-2xl w-full">
           <div className="bg-white rounded-xl shadow-md p-8 text-center">
-            
             {/* Success Icon */}
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 mb-6">
               <CheckCircleIcon className="w-12 h-12 text-emerald-600" />
@@ -40,7 +39,8 @@ export default function OrderConfirmationPage() {
               Order Confirmed
             </h1>
             <p className="text-gray-600 mb-6">
-              Thank you for your purchase. Your order has been placed successfully.
+              Thank you for your purchase. Your order has been placed
+              successfully.
             </p>
 
             {/* Order Number */}
@@ -59,8 +59,8 @@ export default function OrderConfirmationPage() {
               <ul className="space-y-3">
                 {[
                   "You'll receive an order confirmation email shortly",
+                  "You can track your order status with the given order number",
                   "We'll prepare your order with care",
-                  "You'll get a tracking number once shipped",
                   "Expect delivery within 3–5 business days",
                 ].map((text, idx) => (
                   <li key={idx} className="flex items-start">
@@ -86,29 +86,30 @@ export default function OrderConfirmationPage() {
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/shop"
+                href={`/track-order?orderNumber=${orderNumber}`}
                 className="bg-emerald-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-emerald-700 transition-colors"
               >
-                Continue Shopping
+                Track Your Order
               </Link>
+
               <Link
-                href="/"
+                href="/shop"
                 className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
               >
-                Back to Home
+                Continue Shopping
               </Link>
             </div>
           </div>
 
           {/* Support */}
           <div className="mt-8 text-center text-sm text-gray-500">
-            Need help? Contact us at{' '}
-            <span className="font-medium">hello@makhaana.com</span> or{' '}
+            Need help? Contact us at{" "}
+            <span className="font-medium">hello@makhaana.com</span> or{" "}
             <span className="font-medium">+91 98765 43210</span>
           </div>
         </div>
       </main>
       <Footer />
     </>
-  )
+  );
 }

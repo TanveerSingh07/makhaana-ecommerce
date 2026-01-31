@@ -1,171 +1,208 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import Header from './../components/layout/Header'
-import Footer from './../components/layout/Footer'
-import { useCartStore } from '../../store/cartStore'
-import { formatPrice } from '@/lib/utils'
-import toast from 'react-hot-toast'
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Header from "./../components/layout/Header";
+import Footer from "./../components/layout/Footer";
+import { useCartStore } from "../../store/cartStore";
+import { formatPrice } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 declare global {
   interface Window {
-    Razorpay: any
+    Razorpay: any;
   }
 }
 
 export default function CheckoutPage() {
-  const router = useRouter()
-  const { items, getTotal, clearCart } = useCartStore()
+  const router = useRouter();
+  const { items, getTotal, clearCart } = useCartStore();
 
   const [formData, setFormData] = useState({
-    fullName: '',
-    phone: '',
-    email: '',
-    addressLine1: '',
-    addressLine2: '',
-    city: '',
-    state: '',
-    pincode: ''
-  })
+    fullName: "",
+    phone: "",
+    email: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    state: "",
+    pincode: "",
+  });
 
-  const [loading, setLoading] = useState(false)
-  const [deliveryCharge, setDeliveryCharge] = useState(50) // Default ₹50
+  const [loading, setLoading] = useState(false);
+  const [deliveryCharge, setDeliveryCharge] = useState(50); // Default ₹50
 
   useEffect(() => {
     if (items.length === 0) {
-      router.push('/cart')
+      router.push("/cart");
     }
-  }, [items, router])
+  }, [items, router]);
 
   useEffect(() => {
     // Load Razorpay script
-    const script = document.createElement('script')
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js'
-    script.async = true
-    document.body.appendChild(script)
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
 
     return () => {
-      document.body.removeChild(script)
-    }
-  }, [])
+      document.body.removeChild(script);
+    };
+  }, []);
 
-  const subtotal = getTotal()
-  const total = subtotal + deliveryCharge
+  const subtotal = getTotal();
+  const total = subtotal + deliveryCharge;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
-    })
-  }
+      [e.target.name]: e.target.value,
+    });
+  };
 
   const validateForm = () => {
-    if (!formData.fullName || !formData.phone || !formData.email ||
-        !formData.addressLine1 || !formData.city || !formData.state || !formData.pincode) {
-      toast.error('Please fill all required fields')
-      return false
+    if (
+      !formData.fullName ||
+      !formData.phone ||
+      !formData.email ||
+      !formData.addressLine1 ||
+      !formData.city ||
+      !formData.state ||
+      !formData.pincode
+    ) {
+      toast.error("Please fill all required fields");
+      return false;
     }
 
     if (!/^\d{10}$/.test(formData.phone)) {
-      toast.error('Please enter a valid 10-digit phone number')
-      return false
+      toast.error("Please enter a valid 10-digit phone number");
+      return false;
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      toast.error('Please enter a valid email address')
-      return false
+      toast.error("Please enter a valid email address");
+      return false;
     }
 
     if (!/^\d{6}$/.test(formData.pincode)) {
-      toast.error('Please enter a valid 6-digit PIN code')
-      return false
+      toast.error("Please enter a valid 6-digit PIN code");
+      return false;
     }
 
-    return true
-  }
+    return true;
+  };
 
   const handlePayment = async () => {
-    if (!validateForm()) return
+    if (!validateForm()) return;
 
-    setLoading(true)
+    setLoading(true);
 
     try {
-      // Create Razorpay order
-      const orderRes = await fetch('/api/payment/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: total })
-      })
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map((i) => ({
+            productVariantId: i.productVariantId,
+            quantity: i.quantity,
+          })),
+          shippingDetails: formData,
+        }),
+      });
 
-      if (!orderRes.ok) throw new Error('Failed to create payment order')
+      if (!res.ok) throw new Error("Order failed");
 
-      const orderData = await orderRes.json()
-
-      // Initialize Razorpay
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: orderData.amount,
-        currency: orderData.currency,
-        name: 'Makhaana',
-        description: 'Order Payment',
-        order_id: orderData.orderId,
-        handler: async function (response: any) {
-          // Payment successful, create order
-          try {
-            const orderRes = await fetch('/api/orders', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                items: items.map(item => ({
-                  productVariantId: item.productVariantId,
-                  quantity: item.quantity
-                })),
-                shippingDetails: formData,
-                paymentId: response.razorpay_payment_id,
-                paymentMethod: 'online'
-              })
-            })
-
-            if (!orderRes.ok) throw new Error('Failed to create order')
-
-            const orderResult = await orderRes.json()
-            
-            // Clear cart and redirect to confirmation
-            clearCart()
-            toast.success('Order placed successfully!')
-            router.push(`/order-confirmation?orderNumber=${orderResult.orderNumber}`)
-          } catch (error) {
-            console.error('Order creation error:', error)
-            toast.error('Failed to process order. Please contact support.')
-          }
-        },
-        prefill: {
-          name: formData.fullName,
-          email: formData.email,
-          contact: formData.phone
-        },
-        theme: {
-          color: '#10b981'
-        },
-        modal: {
-          ondismiss: function () {
-            setLoading(false)
-            toast.error('Payment cancelled')
-          }
-        }
-      }
-
-      const razorpay = new window.Razorpay(options)
-      razorpay.open()
-    } catch (error) {
-      console.error('Payment error:', error)
-      toast.error('Payment failed. Please try again.')
-      setLoading(false)
+      const data = await res.json();
+      router.replace(`/order-confirmation?orderNumber=${data.orderNumber}`);
+      setTimeout(() => clearCart(), 100);
+    } catch {
+      toast.error("Order failed");
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
-  if (items.length === 0) return null
+  // const handlePayment = async () => {
+  //   if (!validateForm()) return
+
+  //   setLoading(true)
+
+  //   try {
+  //     // Create Razorpay order
+  //     const orderRes = await fetch('/api/payment/create-order', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({ amount: total })
+  //     })
+
+  //     if (!orderRes.ok) throw new Error('Failed to create payment order')
+
+  //     const orderData = await orderRes.json()
+
+  //     // Initialize Razorpay
+  //     const options = {
+  //       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+  //       amount: orderData.amount,
+  //       currency: orderData.currency,
+  //       name: 'Makhaana',
+  //       description: 'Order Payment',
+  //       order_id: orderData.orderId,
+  //       handler: async function (response: any) {
+  //         // Payment successful, create order
+  //         try {
+  //           const orderRes = await fetch('/api/orders', {
+  //             method: 'POST',
+  //             headers: { 'Content-Type': 'application/json' },
+  //             body: JSON.stringify({
+  //               items: items.map(item => ({
+  //                 productVariantId: item.productVariantId,
+  //                 quantity: item.quantity
+  //               })),
+  //               shippingDetails: formData,
+  //               paymentId: response.razorpay_payment_id,
+  //               paymentMethod: 'online'
+  //             })
+  //           })
+
+  //           if (!orderRes.ok) throw new Error('Failed to create order')
+
+  //           const orderResult = await orderRes.json()
+
+  //           // Clear cart and redirect to confirmation
+  //           clearCart()
+  //           toast.success('Order placed successfully!')
+  //           router.push(`/order-confirmation?orderNumber=${orderResult.orderNumber}`)
+  //         } catch (error) {
+  //           console.error('Order creation error:', error)
+  //           toast.error('Failed to process order. Please contact support.')
+  //         }
+  //       },
+  //       prefill: {
+  //         name: formData.fullName,
+  //         email: formData.email,
+  //         contact: formData.phone
+  //       },
+  //       theme: {
+  //         color: '#10b981'
+  //       },
+  //       modal: {
+  //         ondismiss: function () {
+  //           setLoading(false)
+  //           toast.error('Payment cancelled')
+  //         }
+  //       }
+  //     }
+
+  //     const razorpay = new window.Razorpay(options)
+  //     razorpay.open()
+  //   } catch (error) {
+  //     console.error('Payment error:', error)
+  //     toast.error('Payment failed. Please try again.')
+  //     setLoading(false)
+  //   }
+  // }
+
+  if (items.length === 0) return null;
 
   return (
     <>
@@ -178,7 +215,9 @@ export default function CheckoutPage() {
             {/* Left: Delivery Form */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-6">Delivery Details</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-6">
+                  Delivery Details
+                </h2>
 
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -306,17 +345,23 @@ export default function CheckoutPage() {
             {/* Right: Order Summary */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-lg shadow-md p-6 sticky top-20">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">
+                  Order Summary
+                </h2>
 
                 <div className="space-y-3 mb-6 max-h-64 overflow-y-auto">
                   {items.map((item) => (
                     <div key={item.id} className="flex justify-between text-sm">
                       <div>
                         <p className="font-medium">{item.productName}</p>
-                        <p className="text-gray-500">{item.flavour} - {item.packetSize}</p>
+                        <p className="text-gray-500">
+                          {item.flavour} - {item.packetSize}
+                        </p>
                         <p className="text-gray-500">Qty: {item.quantity}</p>
                       </div>
-                      <p className="font-semibold">{formatPrice(item.price * item.quantity)}</p>
+                      <p className="font-semibold">
+                        {formatPrice(item.price * item.quantity)}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -324,15 +369,21 @@ export default function CheckoutPage() {
                 <div className="border-t pt-4 space-y-2 mb-6">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="font-semibold">{formatPrice(subtotal)}</span>
+                    <span className="font-semibold">
+                      {formatPrice(subtotal)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Delivery Charge</span>
-                    <span className="font-semibold">{formatPrice(deliveryCharge)}</span>
+                    <span className="font-semibold">
+                      {formatPrice(deliveryCharge)}
+                    </span>
                   </div>
                   <div className="flex justify-between text-lg font-bold border-t pt-2">
                     <span>Total</span>
-                    <span className="text-emerald-600">{formatPrice(total)}</span>
+                    <span className="text-emerald-600">
+                      {formatPrice(total)}
+                    </span>
                   </div>
                 </div>
 
@@ -341,7 +392,7 @@ export default function CheckoutPage() {
                   disabled={loading}
                   className="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                 >
-                  {loading ? 'Processing...' : 'Proceed to Payment'}
+                  {loading ? "Processing..." : "Proceed to Payment"}
                 </button>
 
                 <p className="text-xs text-gray-500 text-center mt-4">
@@ -354,5 +405,5 @@ export default function CheckoutPage() {
       </main>
       <Footer />
     </>
-  )
+  );
 }

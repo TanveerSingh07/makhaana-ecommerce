@@ -37,7 +37,7 @@ export default async function Home() {
     <>
       <Header />
 
-      <main className="pt-10">
+      <main className="pt-16">
         {/* ================= HERO ================= */}
         <section className="bg-[#f9fbfa]">
           <div className="max-w-7xl mx-auto px-6 py-28 text-center">

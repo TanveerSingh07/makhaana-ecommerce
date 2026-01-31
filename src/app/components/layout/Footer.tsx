@@ -38,7 +38,7 @@ export default function Footer() {
             <li>Shipping Info</li>
             <li>Returns & Refunds</li>
             <li>FAQs</li>
-            <li>Track Order</li>
+            <li><Link href="/track-order">Track Order</Link></li>
           </ul>
         </div>
 
