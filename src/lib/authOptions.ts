@@ -34,14 +34,33 @@ export const authOptions: AuthOptions = {
       },
     }),
   ],
+
   session: {
     strategy: "jwt",
   },
+
   callbacks: {
+    async signIn({ user }) {
+      // 🔗 LINK GUEST ORDERS → USER ON LOGIN
+      if (user?.email && user?.id) {
+        await prisma.order.updateMany({
+          where: {
+            email: user.email,
+            userId: null, // only guest orders
+          },
+          data: {
+            userId: user.id,
+          },
+        })
+      }
+      return true
+    },
+
     async jwt({ token, user }) {
       if (user) token.id = user.id
       return token
     },
+
     async session({ session, token }) {
       if (session.user && token.id) {
         session.user.id = token.id as string
@@ -49,8 +68,10 @@ export const authOptions: AuthOptions = {
       return session
     },
   },
+
   pages: {
     signIn: "/auth",
   },
+
   secret: process.env.NEXTAUTH_SECRET,
 }

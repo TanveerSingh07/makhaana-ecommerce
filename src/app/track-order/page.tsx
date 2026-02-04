@@ -1,50 +1,58 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Header from '../components/layout/Header'
-import Footer from '../components/layout/Footer'
-import { formatPrice } from '@/lib/utils'
-import toast from 'react-hot-toast'
+import { useState } from "react";
+import Header from "../components/layout/Header";
+import Footer from "../components/layout/Footer";
+import { formatPrice } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 const STATUS_STEPS = [
-  'pending',
-  'confirmed',
-  'packed',
-  'shipped',
-  'delivered',
-]
+  "confirmed",
+  "processing",
+  "shipped",
+  "out_for_delivery",
+  "delivered",
+];
+
+const STATUS_LABELS: Record<string, string> = {
+  confirmed: "Confirmed",
+  processing: "Processing",
+  shipped: "Shipped",
+  out_for_delivery: "Out for delivery",
+  delivered: "Delivered",
+};
 
 export default function TrackOrderPage() {
-  const [orderNumber, setOrderNumber] = useState('')
-  const [email, setEmail] = useState('')
-  const [orders, setOrders] = useState<any[]>([])
-  const [loading, setLoading] = useState(false)
+  const [orderNumber, setOrderNumber] = useState("");
+  const [email, setEmail] = useState("");
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const fetchOrders = async () => {
     if (!orderNumber && !email) {
-      toast.error('Enter order number or email')
-      return
+      toast.error("Enter order number or email");
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await fetch('/api/orders/track', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/orders/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderNumber, email }),
-      })
+      });
 
-      if (!res.ok) throw new Error()
+      if (!res.ok) throw new Error();
 
-      const data = await res.json()
-      setOrders(data)
+      const data = await res.json();
+      setOrders(data);
     } catch {
-      toast.error('Order not found')
-      setOrders([])
+      toast.error("Order not found");
+      setOrders([]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <>
@@ -52,7 +60,6 @@ export default function TrackOrderPage() {
 
       <main className="min-h-screen bg-gray-50 pt-16">
         <div className="max-w-3xl mx-auto px-4 py-8">
-
           <h1 className="text-3xl font-bold mb-6">Track Your Order</h1>
 
           {/* Search */}
@@ -60,14 +67,14 @@ export default function TrackOrderPage() {
             <input
               placeholder="Order Number"
               value={orderNumber}
-              onChange={e => setOrderNumber(e.target.value)}
+              onChange={(e) => setOrderNumber(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg"
             />
             <p className="text-center text-gray-500 text-sm">OR</p>
             <input
               placeholder="Email used during checkout"
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg"
             />
 
@@ -75,13 +82,13 @@ export default function TrackOrderPage() {
               onClick={fetchOrders}
               className="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold"
             >
-              {loading ? 'Checking...' : 'Track Order'}
+              {loading ? "Checking..." : "Track Order"}
             </button>
           </div>
 
           {/* Orders */}
-          {orders.map(order => {
-            const currentIndex = STATUS_STEPS.indexOf(order.orderStatus)
+          {orders.map((order) => {
+            const currentIndex = STATUS_STEPS.indexOf(order.orderStatus);
 
             return (
               <div
@@ -91,38 +98,67 @@ export default function TrackOrderPage() {
                 <p className="font-semibold mb-1">
                   Order #{order.orderNumber}
                 </p>
-                <p className="text-sm text-gray-500 mb-4">
+                <p className="text-sm text-gray-500 mb-6">
                   {new Date(order.createdAt).toLocaleString()}
                 </p>
 
-                {/* Timeline */}
-                <div className="flex justify-between mb-6">
-                  {STATUS_STEPS.map((step, idx) => (
-                    <div
-                      key={step}
-                      className={`text-xs text-center flex-1 ${
-                        idx <= currentIndex
-                          ? 'text-emerald-600 font-semibold'
-                          : 'text-gray-400'
-                      }`}
-                    >
-                      <div className="mb-1">●</div>
-                      {step}
-                    </div>
-                  ))}
+                {/* ✅ CENTERED TIMELINE WITH LABELS */}
+                <div className="flex items-start justify-between mb-8">
+                  {STATUS_STEPS.map((step, idx) => {
+                    const active = idx <= currentIndex;
+
+                    return (
+                      <div
+                        key={step}
+                        className="flex-1 flex flex-col items-center text-center relative"
+                      >
+                        {/* Dot */}
+                        <div
+                          className={`w-3 h-3 rounded-full z-10 ${
+                            active ? "bg-emerald-600" : "bg-gray-300"
+                          }`}
+                        />
+
+                        {/* Line */}
+                        {idx < STATUS_STEPS.length - 1 && (
+                          <div
+                            className={`absolute top-1.5 left-1/2 w-full h-px ${
+                              idx < currentIndex
+                                ? "bg-emerald-600"
+                                : "bg-gray-300"
+                            }`}
+                          />
+                        )}
+
+                        {/* Label */}
+                        <span
+                          className={`mt-2 text-xs font-medium ${
+                            active
+                              ? "text-emerald-600"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          {STATUS_LABELS[step]}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
 
                 {/* Items */}
                 <div className="border-t pt-3 space-y-2">
-                  {order.items.map((i: any) => (
-                    <div
-                      key={i.id}
-                      className="flex justify-between text-sm"
-                    >
-                      <span>
-                        {i.productNameSnapshot} × {i.quantity}
-                      </span>
-                      <span>{formatPrice(i.lineTotal)}</span>
+                  {order.items.map((item: any) => (
+                    <div key={item.id} className="flex justify-between text-sm">
+                      <div>
+                        <p className="font-medium">
+                          {item.productNameSnapshot} × {item.quantity}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {item.flavourSnapshot} •{" "}
+                          {item.packetSizeSnapshot}
+                        </p>
+                      </div>
+                      <span>{formatPrice(item.lineTotal)}</span>
                     </div>
                   ))}
                 </div>
@@ -132,12 +168,12 @@ export default function TrackOrderPage() {
                   <span>{formatPrice(order.totalAmount)}</span>
                 </div>
               </div>
-            )
+            );
           })}
         </div>
       </main>
 
       <Footer />
     </>
-  )
+  );
 }

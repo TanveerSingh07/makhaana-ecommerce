@@ -141,7 +141,7 @@ export default function MyOrdersPage() {
                     </p>
 
                     <Link
-                      href={`/order-confirmation?orderNumber=${order.orderNumber}`}
+                      href={`/my-orders/${order.orderNumber}`}
                       className="inline-block mt-3 text-sm text-emerald-600 font-medium hover:underline"
                     >
                       View Details →
