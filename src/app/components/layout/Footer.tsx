@@ -1,6 +1,14 @@
-import Link from 'next/link'
+'use client';
+
+import Link from 'next/link';
+import { use } from 'react';
+import toast from "react-hot-toast";
 
 export default function Footer() {
+  const notReady = (label: string) =>
+    toast(`📦 ${label} page coming soon`, {
+      duration: 2500,
+    });
   return (
     <footer className="bg-gray-900 text-gray-300">
       <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-4 gap-12">
@@ -33,12 +41,31 @@ export default function Footer() {
 
         {/* Support */}
         <div>
-          <h4 className="text-white font-semibold mb-4">Customer Service</h4>
+          <h4 className="text-white font-semibold mb-4">
+            Customer Service
+          </h4>
           <ul className="space-y-2 text-sm">
-            <li>Shipping Info</li>
-            <li>Returns & Refunds</li>
-            <li>FAQs</li>
-            <li><Link href="/track-order">Track Order</Link></li>
+            <li
+              className="cursor-pointer"
+              onClick={() => notReady("Shipping Info")}
+            >
+              Shipping Info
+            </li>
+            <li
+              className="cursor-pointer"
+              onClick={() => notReady("Returns & Refunds")}
+            >
+              Returns & Refunds
+            </li>
+            <li
+              className="cursor-pointer"
+              onClick={() => notReady("FAQs")}
+            >
+              FAQs
+            </li>
+            <li>
+              <Link href="/track-order">Track Order</Link>
+            </li>
           </ul>
         </div>
 
@@ -60,3 +87,4 @@ export default function Footer() {
     </footer>
   )
 }
+

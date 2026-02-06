@@ -95,9 +95,7 @@ export default function TrackOrderPage() {
                 key={order.id}
                 className="bg-white rounded-lg shadow p-6 mb-6"
               >
-                <p className="font-semibold mb-1">
-                  Order #{order.orderNumber}
-                </p>
+                <p className="font-semibold mb-1">Order #{order.orderNumber}</p>
                 <p className="text-sm text-gray-500 mb-6">
                   {new Date(order.createdAt).toLocaleString()}
                 </p>
@@ -133,9 +131,7 @@ export default function TrackOrderPage() {
                         {/* Label */}
                         <span
                           className={`mt-2 text-xs font-medium ${
-                            active
-                              ? "text-emerald-600"
-                              : "text-gray-400"
+                            active ? "text-emerald-600" : "text-gray-400"
                           }`}
                         >
                           {STATUS_LABELS[step]}
@@ -154,8 +150,7 @@ export default function TrackOrderPage() {
                           {item.productNameSnapshot} × {item.quantity}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {item.flavourSnapshot} •{" "}
-                          {item.packetSizeSnapshot}
+                          {item.flavourSnapshot} • {item.packetSizeSnapshot}
                         </p>
                       </div>
                       <span>{formatPrice(item.lineTotal)}</span>
@@ -163,9 +158,25 @@ export default function TrackOrderPage() {
                   ))}
                 </div>
 
-                <div className="border-t pt-3 font-bold flex justify-between mt-3">
-                  <span>Total</span>
-                  <span>{formatPrice(order.totalAmount)}</span>
+                <div className="space-y-1 text-sm text-gray-600 pt-3">
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span>{formatPrice(order.subtotalAmount)}</span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span>Delivery</span>
+                    <span>
+                      {order.deliveryCharge > 0
+                        ? formatPrice(order.deliveryCharge)
+                        : "FREE"}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between font-bold">
+                    <span>Total</span>
+                    <span>{formatPrice(order.totalAmount)}</span>
+                  </div>
                 </div>
               </div>
             );

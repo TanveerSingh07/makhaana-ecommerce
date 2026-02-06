@@ -32,11 +32,11 @@ export default function OrderDetailsPage() {
             Order #{order.orderNumber}
           </h1>
 
-          {/* Status */}
+          {/* STATUS */}
           <div className="bg-white rounded-xl shadow p-6 mb-6">
             <p className="text-sm text-gray-500 mb-1">Order Status</p>
-            <div className="flex items-center gap-3 mt-2">
 
+            <div className="flex items-center gap-3 mt-2">
               <span className="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-sm font-medium">
                 {order.orderStatus.toUpperCase()}
               </span>
@@ -57,7 +57,7 @@ export default function OrderDetailsPage() {
             </p>
           </div>
 
-          {/* Items */}
+          {/* ITEMS */}
           <div className="bg-white rounded-xl shadow p-6 mb-6">
             <h2 className="font-semibold mb-4">Items Ordered</h2>
 
@@ -68,13 +68,17 @@ export default function OrderDetailsPage() {
                   className="flex justify-between text-sm border-b pb-2"
                 >
                   <div>
-                    <p className="font-medium">{item.productNameSnapshot}</p>
+                    <p className="font-medium">
+                      {item.productNameSnapshot}
+                    </p>
+
                     <p className="text-sm text-gray-600">
                       <span className="font-medium">Flavour:</span>{" "}
                       {item.flavourSnapshot || "—"} |{" "}
                       <span className="font-medium">Size:</span>{" "}
                       {item.packetSizeSnapshot || "—"} |{" "}
-                      <span className="font-medium">Qty:</span> {item.quantity}
+                      <span className="font-medium">Qty:</span>{" "}
+                      {item.quantity}
                     </p>
 
                     <p className="text-sm text-gray-500">
@@ -89,15 +93,34 @@ export default function OrderDetailsPage() {
               ))}
             </div>
 
-            <div className="flex justify-between font-bold mt-4">
-              <span>Total</span>
-              <span className="text-emerald-600">
-                {formatPrice(order.totalAmount)}
-              </span>
+            {/* PRICE BREAKUP */}
+            <div className="border-t pt-4 space-y-2 mt-4">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Subtotal</span>
+                <span className="font-semibold">
+                  {formatPrice(order.subtotalAmount)}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-gray-600">Delivery Charges</span>
+                <span className="font-semibold">
+                  {order.deliveryCharge === 0
+                    ? "FREE"
+                    : formatPrice(order.deliveryCharge)}
+                </span>
+              </div>
+
+              <div className="flex justify-between text-lg font-bold border-t pt-2">
+                <span>Total</span>
+                <span className="text-emerald-600">
+                  {formatPrice(order.totalAmount)}
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Shipping */}
+          {/* SHIPPING */}
           <div className="bg-white rounded-xl shadow p-6">
             <h2 className="font-semibold mb-3">Shipping Details</h2>
 
@@ -106,7 +129,7 @@ export default function OrderDetailsPage() {
               <br />
               {order.shippingAddress1}
               <br />
-              {order.shippingCity}, {order.shippingState} -{" "}
+              {order.shippingCity}, {order.shippingState} –{" "}
               {order.shippingPincode}
             </p>
 
@@ -120,4 +143,4 @@ export default function OrderDetailsPage() {
       <Footer />
     </>
   );
-}
+} 

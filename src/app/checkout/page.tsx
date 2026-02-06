@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Header from "./../components/layout/Header";
 import Footer from "./../components/layout/Footer";
 import { useCartStore } from "../../store/cartStore";
@@ -16,6 +17,7 @@ declare global {
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { data: session } = useSession();
   const { items, getTotal, clearCart } = useCartStore();
 
   const [formData, setFormData] = useState({
@@ -30,16 +32,28 @@ export default function CheckoutPage() {
   });
 
   const [loading, setLoading] = useState(false);
-  const [deliveryCharge, setDeliveryCharge] = useState(50);
+  const [deliveryCharge, setDeliveryCharge] = useState(0);
 
+  /* 🔹 Redirect if cart empty */
   useEffect(() => {
     if (items.length === 0) {
       router.push("/cart");
     }
   }, [items, router]);
 
+  /* 🔹 Prefill logged-in user info (NO name error) */
   useEffect(() => {
-    // Load Razorpay script
+    if (session?.user) {
+      setFormData((prev) => ({
+        ...prev,
+        email: session.user.email ?? prev.email,
+        fullName: (session.user as { name?: string })?.name ?? prev.fullName,
+      }));
+    }
+  }, [session]);
+
+  /* 🔹 Load Razorpay */
+  useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.async = true;
@@ -53,20 +67,28 @@ export default function CheckoutPage() {
   const subtotal = getTotal();
   const total = subtotal + deliveryCharge;
 
+  /* 🔹 Resolve delivery charge from DB (NO HARDCODE) */
+  useEffect(() => {
+    if (subtotal <= 0) return;
+
+    fetch("/api/delivery/resolve", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subtotal }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setDeliveryCharge(Number(data.deliveryCharge) || 0);
+      })
+      .catch(() => setDeliveryCharge(0));
+  }, [subtotal]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
-
-  useEffect(() => {
-    if (subtotal >= 500) {
-      setDeliveryCharge(0);
-    } else {
-      setDeliveryCharge(50);
-    }
-  }, [subtotal]);
 
   const validateForm = () => {
     if (
@@ -105,7 +127,7 @@ export default function CheckoutPage() {
     setLoading(true);
 
     try {
-      // 1️⃣ Create order in DB
+      /* 1️⃣ Create order */
       const orderRes = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -122,7 +144,7 @@ export default function CheckoutPage() {
 
       const { orderNumber } = await orderRes.json();
 
-      // 2️⃣ Create Razorpay order
+      /* 2️⃣ Create Razorpay order */
       const paymentRes = await fetch("/api/payment/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -131,7 +153,7 @@ export default function CheckoutPage() {
 
       const paymentData = await paymentRes.json();
 
-      // 3️⃣ Open Razorpay
+      /* 3️⃣ Open Razorpay */
       const razorpay = new window.Razorpay({
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: paymentData.amount,
@@ -140,7 +162,6 @@ export default function CheckoutPage() {
         description: "Order Payment",
         order_id: paymentData.razorpayOrderId,
         handler: async function (response: any) {
-          // 4️⃣ Verify payment
           await fetch("/api/payment/verify", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -350,9 +371,11 @@ export default function CheckoutPage() {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Delivery Charge</span>
+                    <span className="text-gray-600">Delivery Charges</span>
                     <span className="font-semibold">
-                      {formatPrice(deliveryCharge)}
+                      {deliveryCharge === 0
+                        ? "FREE"
+                        : formatPrice(deliveryCharge)}
                     </span>
                   </div>
                   <div className="flex justify-between text-lg font-bold border-t pt-2">
