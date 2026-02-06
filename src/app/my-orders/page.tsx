@@ -1,50 +1,51 @@
-'use client'
+"use client";
 
-import { useSession } from 'next-auth/react'
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Header from '../components/layout/Header'
-import Footer from '../components/layout/Footer'
-import { formatPrice } from '@/lib/utils'
-import Link from 'next/link'
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Header from "../components/layout/Header";
+import Footer from "../components/layout/Footer";
+import { formatPrice } from "@/lib/utils";
+import Link from "next/link";
 
 interface Order {
-  id: string
-  orderNumber: string
-  orderStatus: string
-  totalAmount: number
-  createdAt: string
+  id: string;
+  orderNumber: string;
+  orderStatus: string;
+  paymentStatus: string;
+  totalAmount: number;
+  createdAt: string;
   items?: {
-    id: string
-    productNameSnapshot: string
-    quantity: number
-  }[]
+    id: string;
+    productNameSnapshot: string;
+    quantity: number;
+  }[];
 }
 
 export default function MyOrdersPage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/auth')
-      return
+    if (status === "unauthenticated") {
+      router.push("/auth");
+      return;
     }
 
-    if (status === 'authenticated') {
-      fetch('/api/orders/my')
-        .then(res => res.json())
-        .then(data => {
-          setOrders(data)
-          setLoading(false)
+    if (status === "authenticated") {
+      fetch("/api/orders/my")
+        .then((res) => res.json())
+        .then((data) => {
+          setOrders(data);
+          setLoading(false);
         })
-        .catch(() => setLoading(false))
+        .catch(() => setLoading(false));
     }
-  }, [status, router])
+  }, [status, router]);
 
-  if (status === 'loading' || loading) return null
+  if (status === "loading" || loading) return null;
 
   return (
     <>
@@ -52,7 +53,6 @@ export default function MyOrdersPage() {
 
       <main className="min-h-screen bg-gray-50 pt-16">
         <div className="max-w-6xl mx-auto px-4 py-10">
-
           {/* 🔹 USER INFO (NEW, NON-BREAKING) */}
           <div className="bg-white rounded-xl shadow p-6 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -70,9 +70,7 @@ export default function MyOrdersPage() {
             </Link>
           </div>
 
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">
-            My Orders
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">My Orders</h1>
 
           {orders.length === 0 ? (
             <div className="bg-white rounded-xl shadow p-8 text-center">
@@ -88,38 +86,45 @@ export default function MyOrdersPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {orders.map(order => (
+              {orders.map((order) => (
                 <div
                   key={order.id}
                   className="bg-white rounded-xl shadow p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
                 >
                   {/* LEFT */}
                   <div>
-                    <p className="text-sm text-gray-500">
-                      Order Number
-                    </p>
-                    <p className="font-semibold text-lg">
-                      {order.orderNumber}
-                    </p>
+                    <p className="text-sm text-gray-500">Order Number</p>
+                    <p className="font-semibold text-lg">{order.orderNumber}</p>
 
                     <p className="text-sm text-gray-500 mt-1">
-                      Placed on{' '}
-                      {new Date(order.createdAt).toLocaleDateString()}
+                      Placed on {new Date(order.createdAt).toLocaleDateString()}
                     </p>
 
-                    <span
-                      className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium ${
-                        order.orderStatus === 'pending'
-                          ? 'bg-yellow-100 text-yellow-700'
-                          : order.orderStatus === 'confirmed'
-                          ? 'bg-blue-100 text-blue-700'
-                          : order.orderStatus === 'delivered'
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-gray-100 text-gray-600'
-                      }`}
-                    >
-                      {order.orderStatus.toUpperCase()}
-                    </span>
+                    <div className="flex items-center gap-3 mt-2">
+                      <span
+                        className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium ${
+                          order.orderStatus === "pending"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : order.orderStatus === "confirmed"
+                              ? "bg-blue-100 text-blue-700"
+                              : order.orderStatus === "delivered"
+                                ? "bg-emerald-100 text-emerald-700"
+                                : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        {order.orderStatus.toUpperCase()}
+                      </span>
+
+                      {order.paymentStatus === "paid" ? (
+                        <span className="inline-block mt-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+                          PAID
+                        </span>
+                      ) : (
+                        <span className="inline-block mt-2 px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-medium">
+                          PAYMENT PENDING
+                        </span>
+                      )}
+                    </div>
 
                     {/* 🔹 ITEMS PREVIEW (OPTIONAL, CLEAN) */}
                     {order.items && order.items.length > 0 && (
@@ -133,9 +138,7 @@ export default function MyOrdersPage() {
 
                   {/* RIGHT */}
                   <div className="text-right">
-                    <p className="text-sm text-gray-500">
-                      Total Amount
-                    </p>
+                    <p className="text-sm text-gray-500">Total Amount</p>
                     <p className="text-xl font-bold text-emerald-600">
                       {formatPrice(order.totalAmount)}
                     </p>
@@ -156,5 +159,5 @@ export default function MyOrdersPage() {
 
       <Footer />
     </>
-  )
+  );
 }

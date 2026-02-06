@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
         userId,
         email: shippingDetails.email,
         phone: shippingDetails.phone,
-        orderStatus: "confirmed",
+        orderStatus: "pending",
         paymentStatus: "pending",
         subtotalAmount: subtotal,
         deliveryCharge,

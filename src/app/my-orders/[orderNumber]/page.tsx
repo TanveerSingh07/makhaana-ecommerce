@@ -35,9 +35,22 @@ export default function OrderDetailsPage() {
           {/* Status */}
           <div className="bg-white rounded-xl shadow p-6 mb-6">
             <p className="text-sm text-gray-500 mb-1">Order Status</p>
-            <span className="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-sm font-medium">
-              {order.orderStatus.toUpperCase()}
-            </span>
+            <div className="flex items-center gap-3 mt-2">
+
+              <span className="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-sm font-medium">
+                {order.orderStatus.toUpperCase()}
+              </span>
+
+              {order.paymentStatus === "paid" ? (
+                <span className="inline-block px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm font-medium">
+                  PAID
+                </span>
+              ) : (
+                <span className="inline-block px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-sm font-medium">
+                  PAYMENT PENDING
+                </span>
+              )}
+            </div>
 
             <p className="text-sm text-gray-500 mt-3">
               Placed on {new Date(order.createdAt).toLocaleString()}

@@ -26,7 +26,7 @@ export default function OrderConfirmationPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-gray-50 pt-16 px-4 flex items-center justify-center">
+      <main className="min-h-screen bg-gray-50 pt-20 px-4 flex items-center justify-center">
         <div className="max-w-2xl w-full">
           <div className="bg-white rounded-xl shadow-md p-8 text-center">
             {/* Success Icon */}
@@ -41,6 +41,9 @@ export default function OrderConfirmationPage() {
             <p className="text-gray-600 mb-6">
               Thank you for your purchase. Your order has been placed
               successfully.
+            </p>
+            <p className="text-sm text-emerald-700 font-medium mb-6">
+              Payment Successful • ₹ Paid via Razorpay
             </p>
 
             {/* Order Number */}
@@ -102,7 +105,7 @@ export default function OrderConfirmationPage() {
           </div>
 
           {/* Support */}
-          <div className="mt-8 text-center text-sm text-gray-500">
+          <div className="mt-8 text-center text-sm text-gray-500 mb-6">
             Need help? Contact us at{" "}
             <span className="font-medium">hello@makhaana.com</span> or{" "}
             <span className="font-medium">+91 98765 43210</span>

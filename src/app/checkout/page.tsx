@@ -30,7 +30,7 @@ export default function CheckoutPage() {
   });
 
   const [loading, setLoading] = useState(false);
-  const [deliveryCharge, setDeliveryCharge] = useState(50); // Default ₹50
+  const [deliveryCharge, setDeliveryCharge] = useState(50);
 
   useEffect(() => {
     if (items.length === 0) {
@@ -59,6 +59,14 @@ export default function CheckoutPage() {
       [e.target.name]: e.target.value,
     });
   };
+
+  useEffect(() => {
+    if (subtotal >= 500) {
+      setDeliveryCharge(0);
+    } else {
+      setDeliveryCharge(50);
+    }
+  }, [subtotal]);
 
   const validateForm = () => {
     if (
@@ -94,11 +102,11 @@ export default function CheckoutPage() {
 
   const handlePayment = async () => {
     if (!validateForm()) return;
-
     setLoading(true);
 
     try {
-      const res = await fetch("/api/orders", {
+      // 1️⃣ Create order in DB
+      const orderRes = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -110,97 +118,65 @@ export default function CheckoutPage() {
         }),
       });
 
-      if (!res.ok) throw new Error("Order failed");
+      if (!orderRes.ok) throw new Error("Order creation failed");
 
-      const data = await res.json();
-      router.replace(`/order-confirmation?orderNumber=${data.orderNumber}`);
-      setTimeout(() => clearCart(), 100);
-    } catch {
-      toast.error("Order failed");
-    } finally {
+      const { orderNumber } = await orderRes.json();
+
+      // 2️⃣ Create Razorpay order
+      const paymentRes = await fetch("/api/payment/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderNumber }),
+      });
+
+      const paymentData = await paymentRes.json();
+
+      // 3️⃣ Open Razorpay
+      const razorpay = new window.Razorpay({
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: paymentData.amount,
+        currency: paymentData.currency,
+        name: "Makhaana",
+        description: "Order Payment",
+        order_id: paymentData.razorpayOrderId,
+        handler: async function (response: any) {
+          // 4️⃣ Verify payment
+          await fetch("/api/payment/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...response,
+              orderNumber,
+            }),
+          });
+
+          router.replace(`/order-confirmation?orderNumber=${orderNumber}`);
+
+          setTimeout(() => {
+            clearCart();
+          }, 300);
+        },
+        prefill: {
+          name: formData.fullName,
+          email: formData.email,
+          contact: formData.phone,
+        },
+        theme: { color: "#10b981" },
+        modal: {
+          ondismiss: () => {
+            setLoading(false);
+            toast.error("Payment cancelled");
+          },
+        },
+      });
+
+      razorpay.open();
+    } catch (err) {
+      console.error(err);
+      toast.error("Payment failed");
       setLoading(false);
     }
   };
-
-  // const handlePayment = async () => {
-  //   if (!validateForm()) return
-
-  //   setLoading(true)
-
-  //   try {
-  //     // Create Razorpay order
-  //     const orderRes = await fetch('/api/payment/create-order', {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify({ amount: total })
-  //     })
-
-  //     if (!orderRes.ok) throw new Error('Failed to create payment order')
-
-  //     const orderData = await orderRes.json()
-
-  //     // Initialize Razorpay
-  //     const options = {
-  //       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-  //       amount: orderData.amount,
-  //       currency: orderData.currency,
-  //       name: 'Makhaana',
-  //       description: 'Order Payment',
-  //       order_id: orderData.orderId,
-  //       handler: async function (response: any) {
-  //         // Payment successful, create order
-  //         try {
-  //           const orderRes = await fetch('/api/orders', {
-  //             method: 'POST',
-  //             headers: { 'Content-Type': 'application/json' },
-  //             body: JSON.stringify({
-  //               items: items.map(item => ({
-  //                 productVariantId: item.productVariantId,
-  //                 quantity: item.quantity
-  //               })),
-  //               shippingDetails: formData,
-  //               paymentId: response.razorpay_payment_id,
-  //               paymentMethod: 'online'
-  //             })
-  //           })
-
-  //           if (!orderRes.ok) throw new Error('Failed to create order')
-
-  //           const orderResult = await orderRes.json()
-
-  //           // Clear cart and redirect to confirmation
-  //           clearCart()
-  //           toast.success('Order placed successfully!')
-  //           router.push(`/order-confirmation?orderNumber=${orderResult.orderNumber}`)
-  //         } catch (error) {
-  //           console.error('Order creation error:', error)
-  //           toast.error('Failed to process order. Please contact support.')
-  //         }
-  //       },
-  //       prefill: {
-  //         name: formData.fullName,
-  //         email: formData.email,
-  //         contact: formData.phone
-  //       },
-  //       theme: {
-  //         color: '#10b981'
-  //       },
-  //       modal: {
-  //         ondismiss: function () {
-  //           setLoading(false)
-  //           toast.error('Payment cancelled')
-  //         }
-  //       }
-  //     }
-
-  //     const razorpay = new window.Razorpay(options)
-  //     razorpay.open()
-  //   } catch (error) {
-  //     console.error('Payment error:', error)
-  //     toast.error('Payment failed. Please try again.')
-  //     setLoading(false)
-  //   }
-  // }
 
   if (items.length === 0) return null;
 
