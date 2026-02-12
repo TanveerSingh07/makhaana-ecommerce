@@ -46,7 +46,7 @@ export const authOptions: AuthOptions = {
         await prisma.order.updateMany({
           where: {
             email: user.email,
-            userId: null, // only guest orders
+            userId: null,
           },
           data: {
             userId: user.id,
@@ -57,16 +57,29 @@ export const authOptions: AuthOptions = {
     },
 
     async jwt({ token, user }) {
-      if (user) token.id = user.id
+      if (user?.id) {
+        token.id = user.id
+
+        // ✅ CHECK ADMIN ROLE
+        const roles = await prisma.userRole.findMany({
+          where: { userId: user.id },
+          include: { role: true },
+        })
+
+        token.isAdmin = roles.some(
+          (r) => r.role.name === "admin"
+        )
+      }
       return token
     },
 
-    async session({ session, token }) {
-      if (session.user && token.id) {
-        session.user.id = token.id as string
-      }
-      return session
-    },
+      async session({ session, token }) {
+        if (session.user && token.id) {
+          session.user.id = token.id as string
+          session.user.isAdmin = token.isAdmin as boolean
+        }
+        return session
+      },
   },
 
   pages: {

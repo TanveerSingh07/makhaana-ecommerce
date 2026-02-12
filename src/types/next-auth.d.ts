@@ -4,13 +4,20 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string
-      email: string
+      email?: string | null
+      isAdmin?: boolean
     }
+  }
+
+  interface User {
+    id: string
+    isAdmin?: boolean
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
-    id: string
+    id?: string
+    isAdmin?: boolean
   }
 }

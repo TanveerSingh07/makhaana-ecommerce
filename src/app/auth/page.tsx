@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react"
-import { signIn } from "next-auth/react"
+import { signIn, getSession } from "next-auth/react"
 import Header from "../components/layout/Header"
 import Footer from "../components/layout/Footer"
 import toast from "react-hot-toast"
@@ -16,17 +16,28 @@ export default function AuthPage() {
 
   const handleLogin = async () => {
     setLoading(true)
+
     const res = await signIn("credentials", {
       email,
       password,
       redirect: false,
     })
+
     setLoading(false)
 
     if (res?.error) {
       toast.error("Invalid email or password")
+      return
+    }
+
+    toast.success("Welcome back!")
+
+    // ✅ Fetch session AFTER login
+    const session = await getSession()
+
+    if (session?.user?.isAdmin) {
+      router.push("/admin")
     } else {
-      toast.success("Welcome back!")
       router.push("/")
     }
   }
@@ -64,7 +75,6 @@ export default function AuthPage() {
               : "Login to continue shopping"}
           </p>
 
-          {/* Toggle */}
           <div className="flex mb-6 bg-gray-100 rounded-lg overflow-hidden">
             <button
               onClick={() => setMode("login")}

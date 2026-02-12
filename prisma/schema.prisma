@@ -317,6 +317,8 @@ model UserRole {
   
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   role   Role   @relation(fields: [roleId], references: [id])
+
+  @@unique([userId, roleId])
 }
 
 model AuditLog {
@@ -341,3 +343,13 @@ model Wishlist {
   @@unique([userId, productId])
 }
 
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

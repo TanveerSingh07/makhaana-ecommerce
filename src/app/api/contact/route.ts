@@ -1,37 +1,33 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const data = await req.json();
+    const body = await req.json()
 
-    const { name, email, phone, subject, message } = data;
-
-    if (!name || !email || !message) {
+    if (!body.name || !body.email || !body.message) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
-      );
+      )
     }
 
-    // ✅ For now: simulate email / CRM entry
-    console.log("📩 New Contact Message:", {
-      name,
-      email,
-      phone,
-      subject,
-      message,
-    });
+    await prisma.contactMessage.create({
+      data: {
+        name: body.name,
+        email: body.email,
+        phone: body.phone || null,
+        subject: body.subject || null,
+        message: body.message,
+      },
+    })
 
-    // 🔮 Later:
-    // - Send email to hello@makhaana.com
-    // - Store in DB
-    // - Push to admin panel inbox
-
-    return NextResponse.json({ success: true });
-  } catch (err) {
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error("Contact error:", error)
     return NextResponse.json(
-      { error: "Failed to send message" },
+      { error: "Failed to save message" },
       { status: 500 }
-    );
+    )
   }
 }

@@ -1,7 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCartIcon, UserIcon, ArrowRightOnRectangleIcon } from "@heroicons/react/24/outline";
+import {
+  ShoppingCartIcon,
+  UserIcon,
+  ArrowRightOnRectangleIcon,
+} from "@heroicons/react/24/outline";
 import { useCartStore } from "@/store/cartStore";
 import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
@@ -14,7 +18,7 @@ export default function Header() {
   const { data: session } = useSession();
 
   const itemCount = useCartStore((state) =>
-    state.items.reduce((sum, item) => sum + item.quantity, 0)
+    state.items.reduce((sum, item) => sum + item.quantity, 0),
   );
 
   useEffect(() => {
@@ -41,7 +45,6 @@ export default function Header() {
     >
       <div className="max-w-7xl mx-auto px-4">
         <div className="h-16 flex items-center justify-between">
-          
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold">
@@ -84,6 +87,15 @@ export default function Header() {
                   <UserIcon className="w-5 h-5" />
                   <span>My Orders</span>
                 </Link>
+
+                {session.user.isAdmin && (
+                  <Link
+                    href="/admin"
+                    className="flex items-center gap-1 text-red-600 hover:text-red-700 font-semibold"
+                  >
+                    Admin Panel
+                  </Link>
+                )}
 
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
