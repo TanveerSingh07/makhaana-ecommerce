@@ -168,7 +168,7 @@ export default async function ShopPage() {
         </section>
 
         {/* Benefits Banner */}
-        <section className="bg-white border-t border-gray-100 pb-10">
+        <section className="bg-white border-t border-gray-100">
           <div className="max-w-7xl mx-auto px-6 py-14">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
               {/* Benefit 1 */}

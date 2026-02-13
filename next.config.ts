@@ -9,6 +9,12 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'via.placeholder.com',
+      },{
+        protocol: "https",
+        hostname: "img.freepik.com",
+      },{
+        protocol: "https",
+        hostname: "cdn.shopify.com",
       },
       // Add your own image domains here if you're using external image hosting
       // {

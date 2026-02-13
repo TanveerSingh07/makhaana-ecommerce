@@ -5,33 +5,65 @@ import toast from "react-hot-toast";
 
 export default function AdminProductsPage() {
   const [variants, setVariants] = useState<any[]>([]);
+  const [flavours, setFlavours] = useState<any[]>([]);
+  const [sizes, setSizes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [newProduct, setNewProduct] = useState({
     name: "",
     slug: "",
     description: "",
+    images: [""],
+    selectedFlavours: [] as string[],
+    sizeData: [] as any[],
   });
 
-  // 🔹 Load Variants
   useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        const res = await fetch("/api/admin/products");
-        if (!res.ok) throw new Error("Failed to load products");
-
-        const data = await res.json();
-        setVariants(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error(error);
-        toast.error("Failed to load products");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadProducts();
+    loadAll();
   }, []);
+
+  const loadAll = async () => {
+    const [variantRes, flavourRes, sizeRes] = await Promise.all([
+      fetch("/api/admin/products"),
+      fetch("/api/admin/flavours"),
+      fetch("/api/admin/sizes"),
+    ]);
+
+    setVariants(await variantRes.json());
+    setFlavours(await flavourRes.json());
+    setSizes(await sizeRes.json());
+    setLoading(false);
+  };
+
+    const updateImage = (index: number, value: string) => {
+    const copy = [...newProduct.images];
+    copy[index] = value;
+    setNewProduct({ ...newProduct, images: copy });
+  };
+
+  const addImageField = () => {
+    setNewProduct({ ...newProduct, images: [...newProduct.images, ""] });
+  };
+
+  const removeImage = (index: number) => {
+    const copy = newProduct.images.filter((_, i) => i !== index);
+    setNewProduct({ ...newProduct, images: copy });
+  };
+
+  const toggleFlavour = (id: string) => {
+    const exists = newProduct.selectedFlavours.includes(id);
+    if (exists) {
+      setNewProduct({
+        ...newProduct,
+        selectedFlavours: newProduct.selectedFlavours.filter((f) => f !== id),
+      });
+    } else {
+      setNewProduct({
+        ...newProduct,
+        selectedFlavours: [...newProduct.selectedFlavours, id],
+      });
+    }
+  };
 
   // 🔹 Update Variant
   const updateVariant = async (variant: any) => {
@@ -54,76 +86,170 @@ export default function AdminProductsPage() {
     }
   };
 
-  // 🔹 Create Product
+  const updateSizeData = (packetSizeId: string, field: string, value: any) => {
+    const copy = [...newProduct.sizeData];
+    const index = copy.findIndex((s) => s.packetSizeId === packetSizeId);
+
+    if (index >= 0) {
+      copy[index][field] = value;
+    } else {
+      copy.push({
+        packetSizeId,
+        price: 0,
+        mrp: 0,
+        stock: 0,
+        [field]: value,
+      });
+    }
+
+    setNewProduct({ ...newProduct, sizeData: copy });
+  };
+
   const createProduct = async () => {
     try {
-      if (!newProduct.name || !newProduct.slug) {
-        toast.error("Name and slug required");
-        return;
-      }
-
       const res = await fetch("/api/admin/products/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newProduct),
+        body: JSON.stringify({
+          name: newProduct.name,
+          slug: newProduct.slug,
+          description: newProduct.description,
+          images: newProduct.images.filter(Boolean),
+          flavours: newProduct.selectedFlavours,
+          sizes: newProduct.sizeData,
+        }),
       });
 
       if (!res.ok) throw new Error();
 
-      toast.success("Product created");
-      setNewProduct({ name: "", slug: "", description: "" });
+      toast.success("Product created successfully");
+      loadAll();
     } catch {
       toast.error("Failed to create product");
     }
   };
 
-  if (loading) {
-    return <p className="text-gray-500">Loading products...</p>;
-  }
+  if (loading) return <p>Loading...</p>;
 
   return (
     <>
       <h1 className="text-3xl font-bold mb-8">Products</h1>
 
-      {/* 🔹 CREATE PRODUCT SECTION */}
-      <div className="bg-white p-6 rounded-2xl shadow mb-10">
-        <h2 className="text-xl font-semibold mb-4">Create Product</h2>
+      <div className="bg-white p-8 rounded-2xl shadow mb-12 space-y-6">
+        <h2 className="text-xl font-semibold">Create New Product</h2>
 
-        <div className="grid md:grid-cols-3 gap-4">
-          <input
-            type="text"
-            placeholder="Product Name"
-            value={newProduct.name}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, name: e.target.value })
-            }
-            className="border rounded px-3 py-2"
-          />
+        <input
+          placeholder="Product Name"
+          className="border rounded px-3 py-2 w-full"
+          onChange={(e) =>
+            setNewProduct({ ...newProduct, name: e.target.value })
+          }
+        />
 
-          <input
-            type="text"
-            placeholder="Slug"
-            value={newProduct.slug}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, slug: e.target.value })
-            }
-            className="border rounded px-3 py-2"
-          />
+        <input
+          placeholder="Slug"
+          className="border rounded px-3 py-2 w-full"
+          onChange={(e) =>
+            setNewProduct({ ...newProduct, slug: e.target.value })
+          }
+        />
 
-          <input
-            type="text"
-            placeholder="Description"
-            value={newProduct.description}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, description: e.target.value })
-            }
-            className="border rounded px-3 py-2"
-          />
+        <textarea
+          placeholder="Description"
+          className="border rounded px-3 py-2 w-full"
+          onChange={(e) =>
+            setNewProduct({ ...newProduct, description: e.target.value })
+          }
+        />
+
+        {/* IMAGES */}
+        <div>
+          <p className="font-medium mb-2">Product Images (URLs)</p>
+          {newProduct.images.map((img, i) => (
+            <div key={i} className="flex gap-3 mb-2">
+              <input
+                value={img}
+                placeholder="https://image-url.jpg"
+                className="border rounded px-3 py-2 w-full"
+                onChange={(e) => updateImage(i, e.target.value)}
+              />
+              <button
+                onClick={() => removeImage(i)}
+                className="text-red-500"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+          <button
+            onClick={addImageField}
+            className="text-sm text-emerald-600"
+          >
+            + Add Image
+          </button>
+        </div>
+
+        {/* Flavours */}
+        <div>
+          <p className="font-medium mb-2">Select Flavours</p>
+          <div className="flex flex-wrap gap-3">
+            {flavours.map((f) => (
+              <button
+                key={f.id}
+                onClick={() => toggleFlavour(f.id)}
+                className={`px-3 py-1 rounded ${
+                  newProduct.selectedFlavours.includes(f.id)
+                    ? "bg-emerald-600 text-white"
+                    : "bg-gray-200"
+                }`}
+              >
+                {f.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Sizes */}
+        <div>
+          <p className="font-medium mb-4">Set Prices & Stock Per Size</p>
+
+          {sizes.map((size) => (
+            <div key={size.id} className="grid md:grid-cols-4 gap-4 mb-3">
+              <p className="flex items-center">{size.label}</p>
+
+              <input
+                type="number"
+                placeholder="Price"
+                className="border rounded px-3 py-2"
+                onChange={(e) =>
+                  updateSizeData(size.id, "price", Number(e.target.value))
+                }
+              />
+
+              <input
+                type="number"
+                placeholder="MRP"
+                className="border rounded px-3 py-2"
+                onChange={(e) =>
+                  updateSizeData(size.id, "mrp", Number(e.target.value))
+                }
+              />
+
+              <input
+                type="number"
+                placeholder="Stock"
+                className="border rounded px-3 py-2"
+                onChange={(e) =>
+                  updateSizeData(size.id, "stock", Number(e.target.value))
+                }
+              />
+            </div>
+          ))}
         </div>
 
         <button
           onClick={createProduct}
-          className="mt-4 bg-emerald-600 text-white px-6 py-2 rounded-lg"
+          className="bg-emerald-600 text-white px-6 py-3 rounded-lg"
         >
           Create Product
         </button>

@@ -47,6 +47,8 @@ export default function ProductDetailPage() {
   const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
 
+  const slug = typeof params.slug === "string" ? params.slug : params.slug?.[0];
+
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedFlavourId, setSelectedFlavourId] = useState("");
@@ -55,21 +57,28 @@ export default function ProductDetailPage() {
   const [selectedImage, setSelectedImage] = useState(0);
 
   useEffect(() => {
+    if (!slug) return;
+
     async function fetchProduct() {
       try {
-        const res = await fetch(`/api/products/${params.slug}`);
-        if (!res.ok) throw new Error("Product not found");
+        const res = await fetch(`/api/products/${slug}`);
+
+        if (!res.ok) {
+          throw new Error("Product not found");
+        }
+
         const data = await res.json();
         setProduct(data);
-        setLoading(false);
       } catch (error) {
         console.error(error);
         toast.error("Product not found");
         router.push("/shop");
+      } finally {
+        setLoading(false);
       }
     }
     fetchProduct();
-  }, [params.slug, router]);
+  }, [slug, router]);
 
   if (loading) {
     return (

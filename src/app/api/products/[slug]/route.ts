@@ -1,19 +1,28 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const product = await prisma.product.findFirst({
+    // ✅ REQUIRED IN NEXT 15 / TURBOPACK
+    const { slug } = await context.params;
+
+    if (!slug) {
+      return NextResponse.json(
+        { error: "Missing product slug" },
+        { status: 400 }
+      );
+    }
+
+    const product = await prisma.product.findUnique({
       where: {
-        slug: params.slug,
-        isActive: true,
+        slug,
       },
       include: {
         images: {
-          orderBy: { sortOrder: 'asc' },
+          orderBy: { sortOrder: "asc" },
         },
         variants: {
           where: { isActive: true },
@@ -23,21 +32,21 @@ export async function GET(
           },
         },
       },
-    })
+    });
 
     if (!product) {
       return NextResponse.json(
-        { error: 'Product not found' },
+        { error: "Product not found" },
         { status: 404 }
-      )
+      );
     }
 
-    return NextResponse.json(product)
+    return NextResponse.json(product);
   } catch (error) {
-    console.error('Error fetching product by slug:', error)
+    console.error("Error fetching product by slug:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch product' },
+      { error: "Failed to fetch product" },
       { status: 500 }
-    )
+    );
   }
 }
