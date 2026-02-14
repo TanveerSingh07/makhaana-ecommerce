@@ -22,7 +22,6 @@ export async function GET() {
     },
   })
 
-  // 🔹 Normalize Prisma Decimals → numbers
   const safeOrders = orders.map(order => ({
     ...order,
     subtotalAmount: Number(order.subtotalAmount),

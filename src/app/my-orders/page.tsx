@@ -53,7 +53,6 @@ export default function MyOrdersPage() {
 
       <main className="min-h-screen bg-gray-50 pt-16">
         <div className="max-w-6xl mx-auto px-4 py-10">
-          {/* 🔹 USER INFO (NEW, NON-BREAKING) */}
           <div className="bg-white rounded-xl shadow p-6 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm text-gray-500">Signed in as</p>
@@ -126,7 +125,6 @@ export default function MyOrdersPage() {
                       )}
                     </div>
 
-                    {/* 🔹 ITEMS PREVIEW (OPTIONAL, CLEAN) */}
                     {order.items && order.items.length > 0 && (
                       <p className="text-sm text-gray-600 mt-2">
                         {order.items[0].productNameSnapshot}

@@ -11,11 +11,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
-    // 🔐 Get logged-in user (if any)
     const session = await getServerSession(authOptions);
     const userId = session?.user?.id ?? null;
 
-    // 🔁 IMPORTANT: Link past guest orders if user is logged in
     if (userId && shippingDetails?.email) {
       await prisma.order.updateMany({
         where: {

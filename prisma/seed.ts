@@ -1,4 +1,3 @@
-/* prisma/seed.ts */
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
@@ -118,7 +117,6 @@ async function main() {
 
   const bcrypt = require("bcryptjs");
 
-  // 1️⃣ Ensure admin role exists
   const adminRole = await prisma.role.upsert({
     where: { name: "admin" },
     update: {},
@@ -127,7 +125,6 @@ async function main() {
 
   console.log("✅ Admin role ensured");
 
-  // 2️⃣ Create admin user (if not exists)
   const hashedPassword = await bcrypt.hash("Admin@123", 10);
 
   const adminUser = await prisma.user.upsert({
@@ -143,7 +140,6 @@ async function main() {
 
   console.log("✅ Admin user ensured");
 
-  // 3️⃣ Assign role safely
   await prisma.userRole.upsert({
     where: {
       userId_roleId: {

@@ -13,7 +13,7 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
   }
 
-  const { orderNumber } = await context.params   // ✅ THIS IS THE FIX
+  const { orderNumber } = await context.params   
   const { status } = await req.json()
 
   if (!orderNumber) {

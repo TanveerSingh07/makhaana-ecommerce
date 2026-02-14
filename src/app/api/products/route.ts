@@ -19,7 +19,6 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Transform to include min price and available options
     const productsWithMeta = products.map(product => {
       const prices = product.variants.map(v => parseFloat(v.price.toString()))
       const minPrice = prices.length > 0 ? Math.min(...prices) : 0

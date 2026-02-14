@@ -11,7 +11,6 @@ import { TrashIcon, MinusIcon, PlusIcon } from '@heroicons/react/24/outline'
 export default function CartPage() {
   const { items, removeItem, updateQuantity, getTotal } = useCartStore()
 
-  // ✅ KEEP EMPTY CART UI EXACTLY SAME
   if (items.length === 0) {
     return (
       <>

@@ -34,14 +34,14 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [deliveryCharge, setDeliveryCharge] = useState(0);
 
-  /* 🔹 Redirect if cart empty */
+  /* Redirect if cart empty */
   useEffect(() => {
     if (items.length === 0) {
       router.push("/cart");
     }
   }, [items, router]);
 
-  /* 🔹 Prefill logged-in user info (NO name error) */
+  /* Prefill logged-in user info */
   useEffect(() => {
     if (session?.user) {
       setFormData((prev) => ({
@@ -52,7 +52,7 @@ export default function CheckoutPage() {
     }
   }, [session]);
 
-  /* 🔹 Load Razorpay */
+  /* Load Razorpay */
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
@@ -67,7 +67,7 @@ export default function CheckoutPage() {
   const subtotal = getTotal();
   const total = subtotal + deliveryCharge;
 
-  /* 🔹 Resolve delivery charge from DB (NO HARDCODE) */
+  /* Resolve delivery charge from DB */
   useEffect(() => {
     if (subtotal <= 0) return;
 
@@ -127,7 +127,7 @@ export default function CheckoutPage() {
     setLoading(true);
 
     try {
-      /* 1️⃣ Create order */
+      /* Create order */
       const orderRes = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -144,7 +144,7 @@ export default function CheckoutPage() {
 
       const { orderNumber } = await orderRes.json();
 
-      /* 2️⃣ Create Razorpay order */
+      /* Create Razorpay order */
       const paymentRes = await fetch("/api/payment/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -153,7 +153,7 @@ export default function CheckoutPage() {
 
       const paymentData = await paymentRes.json();
 
-      /* 3️⃣ Open Razorpay */
+      /* Open Razorpay */
       const razorpay = new window.Razorpay({
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: paymentData.amount,

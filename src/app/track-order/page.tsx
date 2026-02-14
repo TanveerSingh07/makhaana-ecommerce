@@ -100,7 +100,7 @@ export default function TrackOrderPage() {
                   {new Date(order.createdAt).toLocaleString()}
                 </p>
 
-                {/* ✅ CENTERED TIMELINE WITH LABELS */}
+                {/* CENTERED TIMELINE WITH LABELS */}
                 <div className="flex items-start justify-between mb-8">
                   {STATUS_STEPS.map((step, idx) => {
                     const active = idx <= currentIndex;

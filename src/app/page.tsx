@@ -38,7 +38,7 @@ export default async function Home() {
       <Header />
 
       <main className="pt-16">
-        {/* ================= HERO ================= */}
+        {/* HERO */}
         <section className="bg-[#f9fbfa]">
           <div className="max-w-7xl mx-auto px-6 py-28 text-center">
             {/* Badge */}
@@ -96,7 +96,7 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* ================= FEATURES ================= */}
+        {/* FEATURES */}
         <section className="py-24">
           <div className="max-w-7xl mx-auto px-6">
             <h2 className="text-3xl font-bold text-center mb-14">
@@ -141,7 +141,7 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* ================= FEATURED PRODUCTS ================= */}
+        {/* FEATURED PRODUCTS */}
         <section className="py-24 bg-gray-50">
           <div className="max-w-7xl mx-auto px-6">
             <h2 className="text-3xl font-bold text-center mb-14">

@@ -1,4 +1,3 @@
-// app/admin/layout.tsx
 import AdminGuard from "../components/admin/AdminGuard";
 import AdminShell from "./AdminShell";
 

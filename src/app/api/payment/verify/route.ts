@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 🔐 Verify Razorpay signature
+    // Verify Razorpay signature
     const body = `${razorpay_order_id}|${razorpay_payment_id}`;
 
     const expectedSignature = crypto
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 🔎 Fetch order to get correct amount
+    // Fetch order to get correct amount
     const order = await prisma.order.findUnique({
       where: { orderNumber },
     });
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ✅ Mark order as paid + create payment record
+    // Mark order as paid + create payment record
     await prisma.order.update({
       where: { orderNumber },
       data: {
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
             paymentGateway: "razorpay",
             paymentId: razorpay_payment_id,
             paymentMethod: "online",
-            amount: order.totalAmount, // ✅ REQUIRED & CORRECT
+            amount: order.totalAmount, 
             status: "success",
           },
         },

@@ -65,7 +65,6 @@ export default function AdminProductsPage() {
     }
   };
 
-  // 🔹 Update Variant
   const updateVariant = async (variant: any) => {
     try {
       const res = await fetch("/api/admin/products/variant", {
@@ -252,7 +251,7 @@ export default function AdminProductsPage() {
         </button>
       </div>
 
-      {/* 🔹 VARIANTS SECTION */}
+      {/* VARIANTS SECTION */}
       <div className="space-y-6">
         {variants.map((v, index) => (
           <div key={v.id} className="bg-white p-6 rounded-2xl shadow">

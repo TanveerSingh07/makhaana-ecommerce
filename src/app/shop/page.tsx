@@ -59,7 +59,7 @@ export default async function ShopPage() {
       <Header />
 
       <main className="pt-10 bg-gray-50 min-h-screen">
-        {/* ================= PAGE HEADER ================= */}
+        {/* PAGE HEADER */}
         <section className="bg-white border-b">
           <div className="max-w-7xl mx-auto px-6 py-16">
             <p className="text-sm text-gray-500 mb-2">
@@ -77,7 +77,7 @@ export default async function ShopPage() {
           </div>
         </section>
 
-        {/* ================= CONTENT ================= */}
+        {/* CONTENT */}
         <section className="max-w-7xl mx-auto px-6 py-12">
           <ShopClient products={products} />
         </section>

@@ -5,7 +5,6 @@ export async function POST(req: Request) {
   try {
     const { email, orderNumber } = await req.json()
 
-    // 🔹 If order number is provided → single order
     if (orderNumber) {
       const order = await prisma.order.findUnique({
         where: { orderNumber },
@@ -19,10 +18,9 @@ export async function POST(req: Request) {
         )
       }
 
-      return NextResponse.json([order]) // return as array for UI consistency
+      return NextResponse.json([order])
     }
 
-    // 🔹 If email is provided → ALL orders for that email
     if (email) {
       const orders = await prisma.order.findMany({
         where: { email },

@@ -6,7 +6,6 @@ export async function GET(
   context: { params: Promise<{ slug: string }> }
 ) {
   try {
-    // ✅ REQUIRED IN NEXT 15 / TURBOPACK
     const { slug } = await context.params;
 
     if (!slug) {

@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     const order = await prisma.$transaction(async (tx) => {
       let subtotal = new Prisma.Decimal(0)
 
-      // 1️⃣ Fetch variants from DB (never trust frontend)
+      // Fetch variants from DB
       const variants = await tx.productVariant.findMany({
         where: {
           id: { in: items.map(i => i.productVariantId) },
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
         throw new Error('Invalid product variant detected')
       }
 
-      // 2️⃣ Stock validation + subtotal
+      // Stock validation + subtotal
       for (const item of items) {
         const variant = variants.find(v => v.id === item.productVariantId)!
 
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
         )
       }
 
-      // 3️⃣ Delivery charge
+      // Delivery charge
       const deliveryRule = await tx.deliveryRule.findFirst({
         where: {
           minOrderValue: { lte: subtotal },
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
 
       const totalAmount = subtotal.plus(deliveryCharge)
 
-      // 4️⃣ Create ORDER (schema-correct fields)
+      // Create ORDER
       const order = await tx.order.create({
         data: {
           orderNumber: `MK-${Date.now()}`,
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
         },
       })
 
-      // 5️⃣ Order items + stock + inventory log
+      // Order items + stock + inventory log
       for (const item of items) {
         const variant = variants.find(v => v.id === item.productVariantId)!
         const lineTotal = new Prisma.Decimal(variant.price).mul(item.quantity)

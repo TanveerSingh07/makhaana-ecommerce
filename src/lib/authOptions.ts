@@ -41,7 +41,7 @@ export const authOptions: AuthOptions = {
 
   callbacks: {
     async signIn({ user }) {
-      // 🔗 LINK GUEST ORDERS → USER ON LOGIN
+      // LINK GUEST ORDERS → USER ON LOGIN
       if (user?.email && user?.id) {
         await prisma.order.updateMany({
           where: {
@@ -60,7 +60,7 @@ export const authOptions: AuthOptions = {
       if (user?.id) {
         token.id = user.id
 
-        // ✅ CHECK ADMIN ROLE
+        // CHECK ADMIN ROLE
         const roles = await prisma.userRole.findMany({
           where: { userId: user.id },
           include: { role: true },

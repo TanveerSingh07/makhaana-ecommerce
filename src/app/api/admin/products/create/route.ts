@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     where: { id: { in: sizes.map((s: any) => s.packetSizeId) } },
   });
 
-  // 4️⃣ Create Variants
+  // Creating Variants
   for (const flavour of flavourRecords) {
     for (const sizeObj of sizes) {
       const size = sizeRecords.find(

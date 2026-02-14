@@ -44,7 +44,7 @@ export default function ShopClient({ products }: { products: any[] }) {
 
   return (
     <>
-      {/* ---------- FILTER BAR ---------- */}
+      {/* FILTER BAR */}
       <div className="bg-white rounded-xl shadow-sm p-4 mb-10 flex flex-wrap items-center justify-between gap-4">
         <p className="text-sm font-medium text-gray-700">
           {filteredProducts.length} Products
@@ -76,7 +76,7 @@ export default function ShopClient({ products }: { products: any[] }) {
         </div>
       </div>
 
-      {/* ---------- EMPTY STATE ---------- */}
+      {/* EMPTY STATE */}
       {filteredProducts.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm p-16 text-center">
           <div className="text-5xl mb-4">🛍️</div>
@@ -89,7 +89,7 @@ export default function ShopClient({ products }: { products: any[] }) {
         </div>
       ) : (
         <>
-          {/* ---------- PRODUCTS GRID ---------- */}
+          {/* PRODUCTS GRID */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {filteredProducts.map((product) => (
               <Link

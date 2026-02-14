@@ -32,7 +32,7 @@ export default function AuthPage() {
 
     toast.success("Welcome back!")
 
-    // ✅ Fetch session AFTER login
+    // Fetch session AFTER login
     const session = await getSession()
 
     if (session?.user?.isAdmin) {
