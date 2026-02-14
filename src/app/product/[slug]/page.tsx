@@ -80,6 +80,18 @@ export default function ProductDetailPage() {
     fetchProduct();
   }, [slug, router]);
 
+  useEffect(() => {
+    if (!product || product.variants.length === 0) return;
+
+    if (!selectedFlavourId) {
+      setSelectedFlavourId(product.variants[0].flavour.id);
+    }
+
+    if (!selectedSizeId) {
+      setSelectedSizeId(product.variants[0].packetSize.id);
+    }
+  }, [product]);
+
   if (loading) {
     return (
       <>
@@ -202,12 +214,12 @@ export default function ProductDetailPage() {
                     <p className="text-3xl font-bold text-emerald-600">
                       {formatPrice(selectedVariant.price)}
                     </p>
-                    {selectedVariant.mrp &&
-                      selectedVariant.mrp > selectedVariant.price && (
-                        <p className="text-gray-500 line-through">
-                          {formatPrice(selectedVariant.mrp)}
-                        </p>
-                      )}
+                    {Number(selectedVariant.mrp) >
+                      Number(selectedVariant.price) && (
+                      <p className="text-gray-500 line-through">
+                        {formatPrice(Number(selectedVariant.mrp))}
+                      </p>
+                    )}
                   </>
                 ) : (
                   <p className="text-gray-500">Select flavour and size</p>

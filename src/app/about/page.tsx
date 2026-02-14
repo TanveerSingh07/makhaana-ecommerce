@@ -20,7 +20,7 @@ export default function AboutPage() {
         </section>
 
         {/* Content */}
-        <section className="max-w-4xl mx-auto px-6 py-14 bg-white mt-8 rounded-xl shadow-sm">
+        <section className="max-w-4xl mx-auto px-6 py-14 bg-white mt-8 rounded-xl shadow-sm mb-8">
           <div className="space-y-8 text-gray-700 leading-relaxed">
             
             <p className="text-lg">

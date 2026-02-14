@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
+import ShopClient from "./ShopClient";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/utils";
 
@@ -18,20 +19,37 @@ async function getProducts() {
   });
 
   return products.map((product) => {
-    const prices = product.variants.map((v) => parseFloat(v.price.toString()));
+    const variants = product.variants.map((v) => ({
+      ...v,
+      price: Number(v.price),
+      mrp: v.mrp ? Number(v.mrp) : null,
+    }));
+
+    const prices = variants.map((v) => v.price);
 
     return {
-      ...product,
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      createdAt: product.createdAt.toISOString(),
+
+      images: product.images,
+
+      variants,
+
       minPrice: prices.length ? Math.min(...prices) : 0,
+
       flavours: Array.from(
-        new Set(product.variants.map((v) => v.flavour.name)),
+        new Set(variants.map((v) => v.flavour.name))
       ),
+
       sizes: Array.from(
-        new Set(product.variants.map((v) => v.packetSize.label)),
+        new Set(variants.map((v) => v.packetSize.label))
       ),
     };
   });
 }
+
 
 export default async function ShopPage() {
   const products = await getProducts();
@@ -61,110 +79,7 @@ export default async function ShopPage() {
 
         {/* ================= CONTENT ================= */}
         <section className="max-w-7xl mx-auto px-6 py-12">
-          {/* ---------- FILTER BAR ---------- */}
-          <div className="bg-white rounded-xl shadow-sm p-4 mb-10 flex flex-wrap items-center justify-between gap-4">
-            <p className="text-sm font-medium text-gray-700">
-              {products.length} Products
-            </p>
-
-            <div className="flex gap-3">
-              <select className="border rounded-lg px-3 py-2 text-sm text-gray-700 bg-white">
-                <option>All Flavours</option>
-                <option>Plain</option>
-                <option>Salted</option>
-                <option>Peri Peri</option>
-              </select>
-
-              <select className="border rounded-lg px-3 py-2 text-sm text-gray-700 bg-white">
-                <option>Sort: Featured</option>
-                <option>Price: Low to High</option>
-                <option>Price: High to Low</option>
-                <option>Newest</option>
-              </select>
-            </div>
-          </div>
-
-          {/* ---------- EMPTY STATE ---------- */}
-          {products.length === 0 ? (
-            <div className="bg-white rounded-xl shadow-sm p-16 text-center">
-              <div className="text-5xl mb-4">🛍️</div>
-              <h3 className="text-2xl font-semibold text-gray-900">
-                No products available
-              </h3>
-              <p className="text-gray-600 mt-2">
-                Check back soon for new arrivals.
-              </p>
-            </div>
-          ) : (
-            <>
-              {/* ---------- PRODUCTS GRID ---------- */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {products.map((product) => (
-                  <Link
-                    key={product.id}
-                    href={`/product/${product.slug}`}
-                    className="bg-white rounded-xl shadow-sm hover-lift overflow-hidden"
-                  >
-                    {/* Image */}
-                    <div className="relative h-56 bg-gray-100">
-                      {product.images[0] && (
-                        <Image
-                          src={product.images[0].url}
-                          alt={product.name}
-                          fill
-                          className="object-cover"
-                        />
-                      )}
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-5">
-                      <h3 className="font-semibold text-gray-900 line-clamp-2">
-                        {product.name}
-                      </h3>
-
-                      <p className="mt-2 text-primary font-bold text-lg">
-                        {formatPrice(product.minPrice)}
-                        <span className="text-sm text-gray-500 font-normal">
-                          {" "}
-                          onwards
-                        </span>
-                      </p>
-
-                      {/* Flavours */}
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {product.flavours.slice(0, 3).map((f, i) => (
-                          <span
-                            key={i}
-                            className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary"
-                          >
-                            {f}
-                          </span>
-                        ))}
-                        {product.flavours.length > 3 && (
-                          <span className="text-xs text-gray-500">
-                            +{product.flavours.length - 3} more
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Sizes */}
-                      <p className="mt-3 text-xs text-gray-500">
-                        Sizes: {product.sizes.join(", ")}
-                      </p>
-
-                      {/* CTA */}
-                      <div className="mt-4">
-                        <span className="inline-block w-full text-center text-sm font-medium text-white bg-primary rounded-lg py-2">
-                          View Details
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </>
-          )}
+          <ShopClient products={products} />
         </section>
 
         {/* Benefits Banner */}
