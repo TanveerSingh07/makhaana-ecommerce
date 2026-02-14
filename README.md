@@ -122,31 +122,31 @@ State Management
 
 # 🗂️ Project Structure
 
-app/
- ├─ admin/
- │   ├─ orders/
- │   ├─ products/
- │   ├─ delivery-rules/
- │   ├─ messages/
- │   ├─ layout.tsx
- │   └─ AdminShell.tsx
- ├─ shop/
- ├─ product/[slug]/
- ├─ cart/
- ├─ order-confirmation/
- ├─ track-order/
- ├─ auth/
- ├─ about/
- └─ contact/
+    app/
+    ├─ admin/
+    │   ├─ orders/
+    │   ├─ products/
+    │   ├─ delivery-rules/
+    │   ├─ messages/
+    │   ├─ layout.tsx
+    │   └─ AdminShell.tsx
+    ├─ shop/
+    ├─ product/[slug]/
+    ├─ cart/
+    ├─ order-confirmation/
+    ├─ track-order/
+    ├─ auth/
+    ├─ about/
+    └─ contact/
 
-lib/
- ├─ prisma.ts
- ├─ authOptions.ts
- └─ utils.ts
+    lib/
+    ├─ prisma.ts
+    ├─ authOptions.ts
+    └─ utils.ts
 
-prisma/
- ├─ schema.prisma
- └─ seed.ts
+    prisma/
+    ├─ schema.prisma
+    └─ seed.ts
 
 # 🔐 Environment Variables
 
