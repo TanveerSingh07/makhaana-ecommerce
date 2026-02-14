@@ -88,10 +88,11 @@ export default function Header() {
                   <span>My Orders</span>
                 </Link>
 
-                {session.user.isAdmin && (
+                {session?.user?.isAdmin && (
                   <Link
                     href="/admin"
-                    className="flex items-center gap-1 text-red-600 hover:text-red-700 font-semibold"
+                    onClick={() => setOpen(false)}
+                    className="text-red-600 font-semibold"
                   >
                     Admin Panel
                   </Link>
@@ -149,6 +150,17 @@ export default function Header() {
                   <Link href="/my-orders" onClick={() => setOpen(false)}>
                     My Orders
                   </Link>
+
+                  {session.user.isAdmin && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setOpen(false)}
+                      className="text-red-600 font-semibold"
+                    >
+                      Admin Panel
+                    </Link>
+                  )}
+
                   <button
                     onClick={() => signOut({ callbackUrl: "/" })}
                     className="text-left text-red-600"

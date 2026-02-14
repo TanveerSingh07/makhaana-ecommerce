@@ -30,7 +30,7 @@ export default function AdminDeliveryRulesPage() {
       <div className="space-y-4">
         {rules.map((rule) => (
           <div key={rule.id} className="bg-white p-6 rounded-xl shadow">
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <div>
                 <label className="text-sm text-gray-500 block mb-1">
                   Min Order Value
@@ -43,13 +43,14 @@ export default function AdminDeliveryRulesPage() {
                       rules.map((r) =>
                         r.id === rule.id
                           ? { ...r, minOrderValue: Number(e.target.value) }
-                          : r,
-                      ),
+                          : r
+                      )
                     )
                   }
-                  className="border px-3 py-2 rounded"
+                  className="border px-3 py-2 rounded w-full"
                 />
               </div>
+
               <div>
                 <label className="text-sm text-gray-500 block mb-1">
                   Max Order Value
@@ -62,13 +63,14 @@ export default function AdminDeliveryRulesPage() {
                       rules.map((r) =>
                         r.id === rule.id
                           ? { ...r, maxOrderValue: Number(e.target.value) }
-                          : r,
-                      ),
+                          : r
+                      )
                     )
                   }
-                  className="border px-3 py-2 rounded"
+                  className="border px-3 py-2 rounded w-full"
                 />
               </div>
+
               <div>
                 <label className="text-sm text-gray-500 block mb-1">
                   Delivery Charges
@@ -81,18 +83,18 @@ export default function AdminDeliveryRulesPage() {
                       rules.map((r) =>
                         r.id === rule.id
                           ? { ...r, deliveryCharge: Number(e.target.value) }
-                          : r,
-                      ),
+                          : r
+                      )
                     )
                   }
-                  className="border px-3 py-2 rounded"
+                  className="border px-3 py-2 rounded w-full"
                 />
               </div>
             </div>
 
             <button
               onClick={() => updateRule(rule)}
-              className="mt-4 bg-emerald-600 text-white px-4 py-2 rounded"
+              className="mt-4 bg-emerald-600 text-white px-4 py-2 rounded w-full sm:w-auto"
             >
               Save
             </button>

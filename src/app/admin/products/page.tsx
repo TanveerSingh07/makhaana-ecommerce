@@ -35,7 +35,7 @@ export default function AdminProductsPage() {
     setLoading(false);
   };
 
-    const updateImage = (index: number, value: string) => {
+  const updateImage = (index: number, value: string) => {
     const copy = [...newProduct.images];
     copy[index] = value;
     setNewProduct({ ...newProduct, images: copy });
@@ -135,7 +135,7 @@ export default function AdminProductsPage() {
     <>
       <h1 className="text-3xl font-bold mb-8">Products</h1>
 
-      <div className="bg-white p-8 rounded-2xl shadow mb-12 space-y-6">
+      <div className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow mb-12 space-y-6">
         <h2 className="text-xl font-semibold">Create New Product</h2>
 
         <input
@@ -166,25 +166,19 @@ export default function AdminProductsPage() {
         <div>
           <p className="font-medium mb-2">Product Images (URLs)</p>
           {newProduct.images.map((img, i) => (
-            <div key={i} className="flex gap-3 mb-2">
+            <div key={i} className="flex flex-col sm:flex-row gap-3 mb-2">
               <input
                 value={img}
                 placeholder="https://image-url.jpg"
                 className="border rounded px-3 py-2 w-full"
                 onChange={(e) => updateImage(i, e.target.value)}
               />
-              <button
-                onClick={() => removeImage(i)}
-                className="text-red-500"
-              >
+              <button onClick={() => removeImage(i)} className="text-red-500">
                 ✕
               </button>
             </div>
           ))}
-          <button
-            onClick={addImageField}
-            className="text-sm text-emerald-600"
-          >
+          <button onClick={addImageField} className="text-sm text-emerald-600">
             + Add Image
           </button>
         </div>
@@ -214,7 +208,10 @@ export default function AdminProductsPage() {
           <p className="font-medium mb-4">Set Prices & Stock Per Size</p>
 
           {sizes.map((size) => (
-            <div key={size.id} className="grid md:grid-cols-4 gap-4 mb-3">
+            <div
+              key={size.id}
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-3"
+            >
               <p className="flex items-center">{size.label}</p>
 
               <input
@@ -249,7 +246,7 @@ export default function AdminProductsPage() {
 
         <button
           onClick={createProduct}
-          className="bg-emerald-600 text-white px-6 py-3 rounded-lg"
+          className="bg-emerald-600 text-white px-6 py-3 rounded-lg w-full sm:w-auto"
         >
           Create Product
         </button>
@@ -263,7 +260,7 @@ export default function AdminProductsPage() {
               {v.product.name} – {v.flavour.name} – {v.packetSize.label}
             </p>
 
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <div>
                 <label className="text-sm text-gray-500 block mb-1">
                   Price (₹)

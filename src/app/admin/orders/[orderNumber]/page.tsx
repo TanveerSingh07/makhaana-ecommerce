@@ -60,7 +60,7 @@ export default function AdminOrderDetailsPage() {
       </h1>
 
       <div className="bg-white p-6 rounded-xl shadow space-y-4">
-        <div className="flex gap-4 items-center">
+       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
           <select
             value={newStatus}
             onChange={e => setNewStatus(e.target.value)}
@@ -76,7 +76,7 @@ export default function AdminOrderDetailsPage() {
           <button
             onClick={updateStatus}
             disabled={loading}
-            className="bg-emerald-600 text-white px-4 py-2 rounded"
+            className="bg-emerald-600 text-white px-4 py-2 rounded w-full sm:w-auto"
           >
             Save
           </button>
