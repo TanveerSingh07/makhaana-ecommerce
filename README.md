@@ -150,40 +150,40 @@ State Management
 
 # 🔐 Environment Variables
 
-Create a .env file:
-
-DATABASE_URL=postgresql://user:password@host:5432/dbname
-
-NEXTAUTH_SECRET=your_secret_key
-NEXTAUTH_URL=http://localhost:3000
-
-RAZORPAY_KEY_ID=your_key_id
-RAZORPAY_KEY_SECRET=your_key_secret
+    Create a .env file:
+    
+    DATABASE_URL=postgresql://user:password@host:5432/dbname
+    
+    NEXTAUTH_SECRET=your_secret_key
+    NEXTAUTH_URL=http://localhost:3000
+    
+    RAZORPAY_KEY_ID=your_key_id
+    RAZORPAY_KEY_SECRET=your_key_secret
 
 # 🧪 Local Development Setup
 
-# Install dependencies
-npm install
+Install dependencies
+    npm install
 
-# Generate Prisma client
-npx prisma generate
+Generate Prisma client
+    npx prisma generate
 
-# Run migrations
-npx prisma migrate dev
+Run migrations
+    npx prisma migrate dev
 
-# (Optional) Seed database
-npx prisma db seed
+(Optional) Seed database
+    npx prisma db seed
 
-# Start development server
-npm run dev
+Start development server
+    npm run dev
 
 # 🧪 Running E2E Tests
 
-# Install python dependencies
-pip install -r requirements.txt
+Install python dependencies
+    pip install -r requirements.txt
 
-# Install Playwright browsers
-playwright install chromium
+Install Playwright browsers
+    playwright install chromium
 
-# Run tests
-npm run test:e2e
+Run tests
+    npm run test:e2e
