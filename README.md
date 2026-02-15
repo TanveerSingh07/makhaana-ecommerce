@@ -176,3 +176,14 @@ npx prisma db seed
 
 # Start development server
 npm run dev
+
+# 🧪 Running E2E Tests
+
+# Install python dependencies
+pip install -r requirements.txt
+
+# Install Playwright browsers
+playwright install chromium
+
+# Run tests
+npm run test:e2e
