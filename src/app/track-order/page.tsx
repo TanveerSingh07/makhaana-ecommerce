@@ -15,11 +15,13 @@ const STATUS_STEPS = [
 ];
 
 const STATUS_LABELS: Record<string, string> = {
+  pending: "Pending",
   confirmed: "Confirmed",
   processing: "Processing",
   shipped: "Shipped",
   out_for_delivery: "Out for delivery",
   delivered: "Delivered",
+  cancelled: "Cancelled",
 };
 
 export default function TrackOrderPage() {
@@ -88,7 +90,10 @@ export default function TrackOrderPage() {
 
           {/* Orders */}
           {orders.map((order) => {
-            const currentIndex = STATUS_STEPS.indexOf(order.orderStatus);
+            const status = order.orderStatus;
+            const isPending = status === "pending";
+            const isCancelled = status === "cancelled";
+            const currentIndex = STATUS_STEPS.indexOf(status);
 
             return (
               <div
@@ -100,46 +105,76 @@ export default function TrackOrderPage() {
                   {new Date(order.createdAt).toLocaleString()}
                 </p>
 
-                {/* CENTERED TIMELINE WITH LABELS */}
-                <div className="flex items-start justify-between mb-8">
-                  {STATUS_STEPS.map((step, idx) => {
-                    const active = idx <= currentIndex;
+                {/* PENDING STATUS */}
+                {isPending && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                      <p className="font-semibold text-yellow-800">Order Pending</p>
+                    </div>
+                    <p className="text-sm text-yellow-700">
+                      Your order is still pending. We'll notify you once it's confirmed.
+                    </p>
+                  </div>
+                )}
 
-                    return (
-                      <div
-                        key={step}
-                        className="flex-1 flex flex-col items-center text-center relative"
-                      >
-                        {/* Dot */}
-                        <div
-                          className={`w-3 h-3 rounded-full z-10 ${
-                            active ? "bg-emerald-600" : "bg-gray-300"
-                          }`}
-                        />
+                {/* CANCELLED STATUS */}
+                {isCancelled && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-3 h-3 rounded-full bg-red-500" />
+                      <p className="font-semibold text-red-800">Order Cancelled</p>
+                    </div>
+                    <p className="text-sm text-red-700">
+                      This order has been cancelled. If payment was made, refund will be processed in 3-5 business days.
+                    </p>
+                  </div>
+                )}
 
-                        {/* Line */}
-                        {idx < STATUS_STEPS.length - 1 && (
+                {/* TIMELINE - Only show if not pending/cancelled */}
+                {!isPending && !isCancelled && (
+                  <div className="mb-8 overflow-x-auto pb-2">
+                    <div className="min-w-[500px] flex items-start justify-between">
+                      {STATUS_STEPS.map((step, idx) => {
+                        const active = idx <= currentIndex;
+
+                        return (
                           <div
-                            className={`absolute top-1.5 left-1/2 w-full h-px ${
-                              idx < currentIndex
-                                ? "bg-emerald-600"
-                                : "bg-gray-300"
-                            }`}
-                          />
-                        )}
+                            key={step}
+                            className="flex-1 flex flex-col items-center text-center relative"
+                          >
+                            {/* Dot */}
+                            <div
+                              className={`w-3 h-3 rounded-full z-10 ${
+                                active ? "bg-emerald-600" : "bg-gray-300"
+                              }`}
+                            />
 
-                        {/* Label */}
-                        <span
-                          className={`mt-2 text-xs font-medium ${
-                            active ? "text-emerald-600" : "text-gray-400"
-                          }`}
-                        >
-                          {STATUS_LABELS[step]}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
+                            {/* Line */}
+                            {idx < STATUS_STEPS.length - 1 && (
+                              <div
+                                className={`absolute top-1.5 left-1/2 w-full h-px ${
+                                  idx < currentIndex
+                                    ? "bg-emerald-600"
+                                    : "bg-gray-300"
+                                }`}
+                              />
+                            )}
+
+                            {/* Label */}
+                            <span
+                              className={`mt-2 text-xs font-medium ${
+                                active ? "text-emerald-600" : "text-gray-400"
+                              }`}
+                            >
+                              {STATUS_LABELS[step]}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 {/* Items */}
                 <div className="border-t pt-3 space-y-2">

@@ -165,19 +165,26 @@ export default function AdminProductsPage() {
         <div>
           <p className="font-medium mb-2">Product Images (URLs)</p>
           {newProduct.images.map((img, i) => (
-            <div key={i} className="flex flex-col sm:flex-row gap-3 mb-2">
+            <div key={i} className="flex items-center gap-2 mb-2">
               <input
                 value={img}
                 placeholder="https://image-url.jpg"
-                className="border rounded px-3 py-2 w-full"
+                className="border rounded px-3 py-2 flex-1 min-w-0"
                 onChange={(e) => updateImage(i, e.target.value)}
               />
-              <button onClick={() => removeImage(i)} className="text-red-500">
+              <button
+                onClick={() => removeImage(i)}
+                className="text-red-500 hover:text-red-700 flex-shrink-0 w-8 h-8 flex items-center justify-center"
+                title="Remove image"
+              >
                 ✕
               </button>
             </div>
           ))}
-          <button onClick={addImageField} className="text-sm text-emerald-600">
+          <button
+            onClick={addImageField}
+            className="text-sm text-emerald-600 hover:text-emerald-700 mt-1"
+          >
             + Add Image
           </button>
         </div>
