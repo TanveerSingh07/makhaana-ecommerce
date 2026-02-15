@@ -193,14 +193,14 @@ export default function CartPage() {
 
                 <Link
                   href="/checkout"
-                  className="block w-full bg-emerald-600 text-white text-center py-2.5 sm:py-3 rounded-lg font-semibold hover:bg-emerald-700 transition-colors text-sm sm:text-base"
+                  className="block w-full bg-emerald-600 text-white text-center py-2.5 sm:py-3 rounded-lg font-semibold hover:bg-emerald-700 transition-colors"
                 >
                   Proceed to Checkout
                 </Link>
 
                 <Link
                   href="/shop"
-                  className="block w-full text-center mt-3 text-emerald-600 hover:text-emerald-700 font-medium text-sm sm:text-base"
+                  className="block w-full text-center mt-3 text-emerald-600 hover:text-emerald-700 font-medium"
                 >
                   Continue Shopping
                 </Link>
