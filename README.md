@@ -163,27 +163,40 @@ State Management
 # 🧪 Local Development Setup
 
 Install dependencies
+        
     npm install
 
 Generate Prisma client
+    
     npx prisma generate
 
 Run migrations
+    
     npx prisma migrate dev
 
 (Optional) Seed database
+    
     npx prisma db seed
 
-Start development server
+Starting development server
+    
     npm run dev
+
+Starting production server
+
+    npm run build
+    npm start
 
 # 🧪 Running E2E Tests
 
 Install python dependencies
+    
     pip install -r requirements.txt
 
 Install Playwright browsers
+    
     playwright install chromium
 
 Run tests
+    
     npm run test:e2e
